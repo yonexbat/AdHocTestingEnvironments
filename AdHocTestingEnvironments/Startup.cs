@@ -1,3 +1,4 @@
+using AdHocTestingEnvironments.DirectReverseProxy;
 using AdHocTestingEnvironments.ReverseProxy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace AdHocTestingEnvironments
 {
@@ -25,11 +27,12 @@ namespace AdHocTestingEnvironments
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.InitReverseProxy();
+            //services.InitReverseProxy();
+            services.AddHttpForwarder();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpForwarder forwarder)
         {
             if (env.IsDevelopment())
             {
@@ -49,10 +52,26 @@ namespace AdHocTestingEnvironments
 
             app.UseAuthorization();
 
+            var invoker = new CustomHttpMessageInvoker();
+            var transformer = new RequestTransformer(); // or HttpTransformer.Default;
+            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
-                endpoints.MapReverseProxy();
+
+                // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
+                // For an alternate example that includes those features see BasicYarpSample.
+                endpoints.Map("/abc/{**remainder}", async httpContext =>
+                {                    
+                    var error = await forwarder.SendAsync(httpContext, "https://localhost:8080", invoker, requestOptions, transformer);
+                    // Check if the proxy operation was successful
+                    if (error != ForwarderError.None)
+                    {
+                        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
+                        var exception = errorFeature.Exception;
+                    }
+                });
             });
         }
     }
