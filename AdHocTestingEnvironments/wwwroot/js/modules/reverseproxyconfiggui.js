@@ -21,8 +21,12 @@ async function initList() {
     const routes = await getRoutes();
     for (const x of routes) {
         const templateInstatnce = document.importNode(template.content, true);
+
         templateInstatnce.querySelector('#name').textContent = x.name;
         templateInstatnce.querySelector('#destination').textContent = x.destination;
+        const removeButton = templateInstatnce.querySelector('#remove');
+        removeButton.addEventListener('click', () => removeRoute(x.name));
+
         parent.appendChild(templateInstatnce);
     }
 }
@@ -32,5 +36,10 @@ async function addRoute() {
     const destination = document.querySelector('#routeDestination').value;
     const newRoute = { name: route, destination: destination };
     await createRoute(newRoute);
+    await initList();
+}
+
+async function removeRoute(name) {
+    await deleteRoute(name);
     await initList();
 }

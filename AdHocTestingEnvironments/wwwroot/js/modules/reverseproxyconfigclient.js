@@ -23,5 +23,8 @@ async function createRoute(data) {
 }
 
 async function deleteRoute(id) {
-
+    const url = `${api}/Routing/${id}`;
+    const res = await fetch(url, {
+        method: 'DELETE',
+    });
 }
