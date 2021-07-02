@@ -1,5 +1,8 @@
 using AdHocTestingEnvironments.DirectReverseProxy;
+using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.ReverseProxy;
+using AdHocTestingEnvironments.Routing;
+using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,13 +29,22 @@ namespace AdHocTestingEnvironments
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.Configure<EnvironmentConfigOptions>(Configuration.GetSection("EnvironmentConfig"));
+
+            services.AddControllersWithViews();
             services.AddRazorPages();
-            //services.InitReverseProxy();
+            services.AddHttpContextAccessor();
+
             services.AddHttpForwarder();
+
+            services.AddSingleton<RequestRouter>();
+            services.AddSingleton<IRoutingService, RoutingService>();
+            services.AddSingleton<IEnvironmentService, EnvironmentService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpForwarder forwarder)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpForwarder forwarder, RequestRouter requestRouter)
         {
             if (env.IsDevelopment())
             {
@@ -50,27 +62,21 @@ namespace AdHocTestingEnvironments
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
-            var invoker = new CustomHttpMessageInvoker();
-            var transformer = new RequestTransformer(); // or HttpTransformer.Default;
-            var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
+            app.UseAuthorization();           
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
 
+                endpoints.MapControllerRoute(
+                 name: "default",
+                 pattern: "{controller}/{action=Index}/{id?}");
+
                 // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
                 // For an alternate example that includes those features see BasicYarpSample.
                 endpoints.Map("/abc/{**remainder}", async httpContext =>
-                {                    
-                    var error = await forwarder.SendAsync(httpContext, "https://localhost:8080", invoker, requestOptions, transformer);
-                    // Check if the proxy operation was successful
-                    if (error != ForwarderError.None)
-                    {
-                        var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                        var exception = errorFeature.Exception;
-                    }
+                {
+                    await requestRouter.RouteRequest(httpContext, forwarder);
                 });
             });
         }
