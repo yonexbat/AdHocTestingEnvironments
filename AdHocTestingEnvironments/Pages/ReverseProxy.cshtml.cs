@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Pages
 {
-    public class PrivacyModel : PageModel
+    public class ReverseProxyModel : PageModel
     {
-        private readonly ILogger<PrivacyModel> _logger;
+        private readonly ILogger<ReverseProxyModel> _logger;
 
-        public PrivacyModel(ILogger<PrivacyModel> logger)
+        public ReverseProxyModel(ILogger<ReverseProxyModel> logger)
         {
             _logger = logger;
         }

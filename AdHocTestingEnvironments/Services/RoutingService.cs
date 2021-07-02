@@ -10,9 +10,10 @@ namespace AdHocTestingEnvironments.Services
     {
         private readonly IDictionary<string, RoutingEntry> _routes = new Dictionary<string, RoutingEntry>();
 
-        public void AddItem(RoutingEntry item)
+        public RoutingEntry AddItem(RoutingEntry item)
         {
-            _routes.Add(item.Name, item);
+            _routes[item.Name] = item;
+            return item;
         }
 
         public void DeleteItem(string app)

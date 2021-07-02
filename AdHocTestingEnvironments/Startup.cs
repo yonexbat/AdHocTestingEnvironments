@@ -74,7 +74,7 @@ namespace AdHocTestingEnvironments
 
                 // When using IHttpForwarder for direct forwarding you are responsible for routing, destination discovery, load balancing, affinity, etc..
                 // For an alternate example that includes those features see BasicYarpSample.
-                endpoints.Map("/abc/{**remainder}", async httpContext =>
+                endpoints.Map("/endpoint/{**remainder}", async httpContext =>
                 {
                     await requestRouter.RouteRequest(httpContext, forwarder);
                 });

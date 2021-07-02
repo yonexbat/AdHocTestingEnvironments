@@ -14,6 +14,6 @@ namespace AdHocTestingEnvironments.Services
 
         void DeleteItem(string app);
 
-        void AddItem(RoutingEntry item);
+        RoutingEntry AddItem(RoutingEntry item);
     }
 }

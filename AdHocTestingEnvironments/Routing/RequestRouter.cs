@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Forwarder;
 
@@ -38,10 +39,19 @@ namespace AdHocTestingEnvironments.Routing
         }
 
 
-        private string GetDestination(string path)
+        public string GetDestination(string path)
         {
-            var item = _routingService.GetItem(path);
-            return item.Destination;
+            string pattern = @"\/endpoint\/(?<dest>\w+)\/.*";
+            var match = Regex.Match(path, pattern);
+            if(match.Success)
+            {
+                string routeName = match.Groups["dest"].Value;
+                var item = _routingService.GetItem(routeName);
+                return item.Destination;
+            }
+
+            throw new ArgumentException("No match found");
+
         }
     }
 }

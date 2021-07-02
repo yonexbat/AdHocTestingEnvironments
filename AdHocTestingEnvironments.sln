@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdHocTestingEnvironments", "AdHocTestingEnvironments\AdHocTestingEnvironments.csproj", "{DA4AA19D-17F5-4AD7-B0DE-B6B85706A21A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdHocTestingEnvironments", "AdHocTestingEnvironments\AdHocTestingEnvironments.csproj", "{DA4AA19D-17F5-4AD7-B0DE-B6B85706A21A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdHocTestingEnvironmentsTests", "AdHocTestingEnvironmentsTests\AdHocTestingEnvironmentsTests.csproj", "{F7A69AB7-A8F2-4AD1-A748-32CC22325002}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{DA4AA19D-17F5-4AD7-B0DE-B6B85706A21A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA4AA19D-17F5-4AD7-B0DE-B6B85706A21A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA4AA19D-17F5-4AD7-B0DE-B6B85706A21A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7A69AB7-A8F2-4AD1-A748-32CC22325002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7A69AB7-A8F2-4AD1-A748-32CC22325002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7A69AB7-A8F2-4AD1-A748-32CC22325002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7A69AB7-A8F2-4AD1-A748-32CC22325002}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

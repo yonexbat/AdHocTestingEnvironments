@@ -38,18 +38,19 @@ namespace AdHocTestingEnvironments.Controllers
 
         // POST api/<ValuesController>
         [HttpPost]
-        public void Post([FromBody] RoutingEntry value)
+        public RoutingEntry Post([FromBody] RoutingEntry value)
         {
-            _routingService.AddItem(value);
+            return _routingService.AddItem(value);
         }
 
         // PUT api/<ValuesController>/5
         [HttpPut("{id}")]
-        public void Put(string id, [FromBody] RoutingEntry routingEntry)
+        public RoutingEntry Put(string id, [FromBody] RoutingEntry routingEntry)
         {
             var item = _routingService.GetItem(id);
             item.Destination = routingEntry.Destination;
             item.Name = routingEntry.Name;
+            return item;
         }
 
         // DELETE api/<ValuesController>/5

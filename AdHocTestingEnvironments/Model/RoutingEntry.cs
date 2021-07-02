@@ -7,7 +7,8 @@ namespace AdHocTestingEnvironments.Model
 {
     public class RoutingEntry
     {
-        public string Name;
-        public string Destination;
+        public string Name { get; set; }
+
+        public string Destination { get; set; }
     }
 }
