@@ -17,6 +17,8 @@ namespace AdHocTestingEnvironments.Services
         private readonly string _host;
         private readonly string _namespace;
         private readonly ILogger _logger;
+        private const string CREATOR_VALUE = "adhoctestingenvironments";
+        private const string CREATOR_KEY = "creator";
 
         public KubernetesClient(IConfiguration configuration, ILogger<KubernetesClient> logger)
         {
@@ -32,7 +34,7 @@ namespace AdHocTestingEnvironments.Services
 
             IKubernetes client = CreateClient();
 
-            //ConfigMap
+            // ConfigMap
             var configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);
             V1ConfigMap resConfigMap = await client.CreateNamespacedConfigMapAsync(configMap, _namespace);
             string jsonString = JsonSerializer.Serialize(resConfigMap);
@@ -46,7 +48,7 @@ namespace AdHocTestingEnvironments.Services
             _logger.LogInformation("Created Deployment: {0}", jsonString);
 
 
-            //Service
+            // Service
             V1Service service = CreateService(instanceInfo.Name);
             var resService = await client.CreateNamespacedServiceAsync(service, _namespace);
             jsonString = JsonSerializer.Serialize(resService);
@@ -72,6 +74,44 @@ namespace AdHocTestingEnvironments.Services
             return "Ok";
         }
 
+        public async Task<IList<AppInstance>> GetEnvironments()
+        {
+            _logger.LogInformation("Getting environments");
+            IKubernetes client = CreateClient();
+            V1ServiceList serviceList = await client.ListNamespacedServiceAsync(_namespace);
+            V1PodList podList = await client.ListNamespacedPodAsync(_namespace);
+
+            if (serviceList.Items != null)
+            {
+                List<AppInstance> appInstances = serviceList.Items
+                    .Where(x => x.Metadata.Labels?.Any() == true)
+                    .Where(x => x.Metadata.Labels.Any(l => l.Key == CREATOR_KEY && l.Value == CREATOR_VALUE))
+                    .Select(x => x.Metadata.Name)
+                    .Select(x => new AppInstance()
+                    {
+                        Name = x,
+                        Status = "Unknown",
+                    })
+                    .ToList();
+
+                appInstances.ForEach(x =>
+                {
+                    V1Pod pod = podList.Items
+                        .Where(p => (p.Metadata?.Name ?? string.Empty).StartsWith(x.Name))
+                        .SingleOrDefault();
+
+                    if(pod != null)
+                    {
+                        x.Status = pod.Status?.Phase;
+                    }
+                });
+
+                return appInstances;
+            }
+            _logger.LogDebug("No services found");
+            return new List<AppInstance>();
+        }
+
         private IKubernetes CreateClient()
         {            
             _logger.LogInformation("Api host: {0}", _host);
@@ -90,6 +130,8 @@ namespace AdHocTestingEnvironments.Services
             V1Service service = new V1Service();
             service.Metadata = new V1ObjectMeta();
             service.Metadata.Name = appName;
+            service.Metadata.Labels = new Dictionary<string, string>();
+            service.Metadata.Labels[CREATOR_KEY] = CREATOR_VALUE;
             service.Spec = new V1ServiceSpec();
             service.Spec.Selector = new Dictionary<string, string>();
             service.Spec.Selector["app"] = appName;
@@ -106,9 +148,29 @@ namespace AdHocTestingEnvironments.Services
         private V1Deployment CreateDeployment(string appName, string image)
         {
             // Deployment
+            var deployment = CreateDeploymentHeader(appName);
+
+            // Deployment Volume
+            deployment.Spec.Template.Spec.Volumes = new List<V1Volume>();
+            var volume = CreateVolumeForPlsqlContainer(appName);
+            deployment.Spec.Template.Spec.Volumes.Add(volume);
+
+            var appContainer = CreateAppContainer(appName, image);           
+            deployment.Spec.Template.Spec.Containers.Add(appContainer);
+
+            var psqlContainer = CreatePsqlContainer(appName);
+            deployment.Spec.Template.Spec.Containers.Add(psqlContainer);
+
+            return deployment;
+        }
+
+        private V1Deployment CreateDeploymentHeader(string appName)
+        {
             var deployment = new V1Deployment();
             deployment.Metadata = new V1ObjectMeta();
-            deployment.Metadata.Name = $"{appName}";
+            deployment.Metadata.Name = appName;
+            deployment.Metadata.Labels = new Dictionary<string, string>();
+            deployment.Metadata.Labels[CREATOR_KEY] = CREATOR_VALUE;
             deployment.Spec = new V1DeploymentSpec();
             deployment.Spec.Selector = new V1LabelSelector();
             deployment.Spec.Selector.MatchLabels = new Dictionary<string, string>();
@@ -119,22 +181,16 @@ namespace AdHocTestingEnvironments.Services
             deployment.Spec.Template.Metadata.Labels["app"] = appName;
             deployment.Spec.Template.Spec = new V1PodSpec();
             deployment.Spec.Template.Spec.Containers = new List<V1Container>();
+            return deployment;
+        }
 
-            // Deployment Volume
-            deployment.Spec.Template.Spec.Volumes = new List<V1Volume>();
+        private V1Volume CreateVolumeForPlsqlContainer(string appName)
+        {
             var volume = new V1Volume();
             volume.Name = "initscript";
             volume.ConfigMap = new V1ConfigMapVolumeSource();
-            volume.ConfigMap.Name = $"sql{appName}";
-            deployment.Spec.Template.Spec.Volumes.Add(volume);
-
-            var appContainer = CreateAppContainer(appName, image);           
-            deployment.Spec.Template.Spec.Containers.Add(appContainer);
-
-            var psqlContainer = CreatePsqlContainer(appName);
-            deployment.Spec.Template.Spec.Containers.Add(psqlContainer);
-
-            return deployment;
+            volume.ConfigMap.Name = appName;
+            return volume;
         }
 
         private V1Container CreateAppContainer(string appName, string image)

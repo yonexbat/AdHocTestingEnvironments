@@ -11,5 +11,7 @@ namespace AdHocTestingEnvironments.Services
         public Task<string> StartEnvironment(InstanceInfo instanceInfo);
 
         public Task<string> StopEnvironment(string appName);
+
+        public Task<IList<AppInstance>> GetEnvironments();
     }
 }

@@ -40,6 +40,15 @@ namespace AdHocTestingEnvironmentsTests
             await client.StopEnvironment("testwzei");
         }
 
+        [Fact]
+        public async Task GetEnvironmentsOk()
+        {
+            //Arrange           
+            IKubernetesClient client = CreateClient();
+
+            var result = await client.GetEnvironments();
+        }
+
         private IConfiguration GetConfiguration()
         {
             var builder = new ConfigurationBuilder()
