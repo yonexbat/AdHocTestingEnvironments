@@ -1,0 +1,30 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+
+    <h1 class="display-4">Welcome To AdHoc Testing Environments</h1>
+
+    <div class="text-left">
+        <h3>
+            Start an environment
+        </h3>
+
+        <div class="row form-group">
+            <div class="col-md-12">
+                <label for="containerImage">Container Image of the application</label>
+                <input type="text" class="form-control" id="containerImage" placeholder="Containerimage" value="claudeglauser/sample-webapp:latest">
+                <small id="containerImageHelp" class="form-text text-muted">ID of container image</small>
+            </div>
+        </div>
+
+ 
+
+
+
+        <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    </div>
+</div>

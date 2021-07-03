@@ -1,0 +1,52 @@
+﻿@page
+@model ReverseProxyModel
+@{
+    ViewData["Title"] = "Reverse Proxy Config";
+}
+<h1>@ViewData["Title"]</h1>
+
+<h3>Create route</h3>
+
+
+<div class="row form-group">
+
+    <!-- Name -->
+    <div class="col-md-6">
+        <label>Route name</label>
+        <input type="text" class="form-control" id="routeName">
+    </div>
+
+    <!-- Destination -->
+    <div class="col-md-6">
+        <label>Route Destination</label>
+        <input type="text" class="form-control" id="routeDestination">
+    </div>
+
+</div>
+
+<button type="button" class="btn btn-primary" id="addRoute">Route erstellen</button>
+
+<h3>Active routes</h3>
+
+<template id="routetemplate">
+    <li>
+        <span id="name"></span>
+        <span id="destination"></span>
+        <span id="remove">x</span>
+    </li>
+</template>
+
+
+
+
+<div>
+    <ol id="routelist">
+
+    </ol>
+</div>
+
+
+
+@section Scripts {
+    <script type="module" src="~/js/modules/reverseproxyconfiggui.js"></script>
+}
