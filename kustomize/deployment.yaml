@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adhoctestingenvironments
+spec:
+  selector:
+    matchLabels:
+      app: adhoctestingenvironments
+  template:
+    metadata:
+      labels:
+        app: adhoctestingenvironments
+    spec:
+      containers:
+        - name: adhoctestingenvironments
+          image: claudeglauser/adhoctestingenvironments:latest
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "0.25"
+            limits:
+              memory: "1000Mi"
+              cpu: "1"
+          
