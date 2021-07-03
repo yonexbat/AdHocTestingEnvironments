@@ -24,6 +24,12 @@ async function initList() {
 
         templateInstatnce.querySelector('#name').textContent = x.name;
         templateInstatnce.querySelector('#destination').textContent = x.destination;
+
+        //link
+        const link = templateInstatnce.querySelector('#link');
+        link.href = `/endpoint/${x.name}`;        
+
+        // Remove button
         const removeButton = templateInstatnce.querySelector('#remove');
         removeButton.addEventListener('click', () => removeRoute(x.name));
 
