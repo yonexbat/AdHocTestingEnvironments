@@ -28,7 +28,7 @@ namespace AdHocTestingEnvironments.Services
             _namespace = configuration.GetValue<string>("KubernetesNamespace");
         }
 
-        public async Task<string> StartEnvironment(InstanceInfo instanceInfo)
+        public async Task<string> StartEnvironment(CreateEnvironmentInstanceData instanceInfo)
         {
             _logger.LogInformation("Starting environment. Imgage: {0}, AppName: {1}.", instanceInfo.Image, instanceInfo.Name);
 
@@ -74,7 +74,7 @@ namespace AdHocTestingEnvironments.Services
             return "Ok";
         }
 
-        public async Task<IList<AppInstance>> GetEnvironments()
+        public async Task<IList<EnvironmentInstance>> GetEnvironments()
         {
             _logger.LogInformation("Getting environments");
             IKubernetes client = CreateClient();
@@ -83,11 +83,11 @@ namespace AdHocTestingEnvironments.Services
 
             if (serviceList.Items != null)
             {
-                List<AppInstance> appInstances = serviceList.Items
+                List<EnvironmentInstance> appInstances = serviceList.Items
                     .Where(x => x.Metadata.Labels?.Any() == true)
                     .Where(x => x.Metadata.Labels.Any(l => l.Key == CREATOR_KEY && l.Value == CREATOR_VALUE))
                     .Select(x => x.Metadata.Name)
-                    .Select(x => new AppInstance()
+                    .Select(x => new EnvironmentInstance()
                     {
                         Name = x,
                         Status = "Unknown",
@@ -109,7 +109,7 @@ namespace AdHocTestingEnvironments.Services
                 return appInstances;
             }
             _logger.LogDebug("No services found");
-            return new List<AppInstance>();
+            return new List<EnvironmentInstance>();
         }
 
         private IKubernetes CreateClient()

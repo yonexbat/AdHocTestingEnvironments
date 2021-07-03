@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Model
 {
-    public class AdHocEnvironment
+    public class AdHocEnvironmentConfig
     {
         public string Name { get; set; }
 

@@ -7,6 +7,6 @@ namespace AdHocTestingEnvironments.Model.EnvironmentConfig
 {
     public class EnvironmentConfigOptions
     {
-        public IList<AdHocEnvironment> Environments { get; set; } = new List<AdHocEnvironment>();
+        public IList<AdHocEnvironmentConfig> Environments { get; set; } = new List<AdHocEnvironmentConfig>();
     }
 }

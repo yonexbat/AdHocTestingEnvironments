@@ -8,10 +8,10 @@ namespace AdHocTestingEnvironments.Services
 {
     public interface IKubernetesClient
     {
-        public Task<string> StartEnvironment(InstanceInfo instanceInfo);
+        public Task<string> StartEnvironment(CreateEnvironmentInstanceData instanceInfo);
 
         public Task<string> StopEnvironment(string appName);
 
-        public Task<IList<AppInstance>> GetEnvironments();
+        public Task<IList<EnvironmentInstance>> GetEnvironments();
     }
 }

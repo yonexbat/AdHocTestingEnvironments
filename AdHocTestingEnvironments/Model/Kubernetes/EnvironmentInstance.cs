@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Model.Kubernetes
 {
-    public class InstanceInfo
+    public class EnvironmentInstance
     {
         public string Name { get; set; }
-        public string Image { get; set; }
-        public string InitSqlScript { get; set; }
+
+        public string Status { get; set; }
     }
 }

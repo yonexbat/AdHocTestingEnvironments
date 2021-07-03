@@ -22,7 +22,7 @@ namespace AdHocTestingEnvironmentsTests
             IKubernetesClient client = CreateClient();
 
             //Act
-            await client.StartEnvironment(new AdHocTestingEnvironments.Model.Kubernetes.InstanceInfo()
+            await client.StartEnvironment(new AdHocTestingEnvironments.Model.Kubernetes.CreateEnvironmentInstanceData()
             {
                 Image = "claudeglauser/sample-webapp:latest",
                 InitSqlScript = InitScript,
