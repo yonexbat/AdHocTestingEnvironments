@@ -1,4 +1,5 @@
 ﻿using AdHocTestingEnvironments.DirectReverseProxy;
+using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -39,14 +40,14 @@ namespace AdHocTestingEnvironments.Routing
         }
 
 
-        public string GetDestination(string path)
+        private string GetDestination(string path)
         {
-            string pattern = @"\/endpoint\/(?<dest>\w+)\/.*";
+            string pattern = @"^\/endpoint\/(?<dest>\w+)(\/|$).*";
             var match = Regex.Match(path, pattern);
             if(match.Success)
             {
                 string routeName = match.Groups["dest"].Value;
-                var item = _routingService.GetItem(routeName);
+                RoutingEntry item = _routingService.GetItem(routeName);
                 return item.Destination;
             }
 
