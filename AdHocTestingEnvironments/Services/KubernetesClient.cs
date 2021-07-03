@@ -28,15 +28,9 @@ namespace AdHocTestingEnvironments.Services
 
         public async Task<string> StartEnvironment(InstanceInfo instanceInfo)
         {
-            _logger.LogInformation("Starging environment. Imgage: {0}, AppName: {1}.", instanceInfo.Image, instanceInfo.Name);
-            _logger.LogInformation("Api host: {0}", _host);
-            _logger.LogInformation("Namespace: {0)", _namespace);
+            _logger.LogInformation("Starting environment. Imgage: {0}, AppName: {1}.", instanceInfo.Image, instanceInfo.Name);
 
-            KubernetesClientConfiguration config = new KubernetesClientConfiguration();
-            config.AccessToken = _accessToken;
-            config.Host = _host;
-            config.SkipTlsVerify = true;
-            IKubernetes client = new Kubernetes(config);
+            IKubernetes client = CreateClient();
 
             //ConfigMap
             var configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);
@@ -59,6 +53,36 @@ namespace AdHocTestingEnvironments.Services
             _logger.LogInformation("Created Service: {0}", jsonString);
 
             return "Ok";
+        }
+
+        public async Task<string> StopEnvironment(string appName)
+        {
+            _logger.LogInformation("Stopping environment: {0}", appName);
+            IKubernetes client = CreateClient();
+            
+            await client.DeleteNamespacedServiceAsync(appName, _namespace);
+            _logger.LogInformation("Stopped service {0}", appName);
+
+            await client.DeleteNamespacedDeploymentAsync(appName, _namespace);
+            _logger.LogInformation("Stopped deployment {0}. Pods take a while to shut down", appName);
+
+            await client.DeleteNamespacedConfigMapAsync(appName, _namespace);
+            _logger.LogInformation("Stopped configmap: {0}", appName);
+
+            return "Ok";
+        }
+
+        private IKubernetes CreateClient()
+        {            
+            _logger.LogInformation("Api host: {0}", _host);
+            _logger.LogInformation("Namespace: {0)", _namespace);
+
+            KubernetesClientConfiguration config = new KubernetesClientConfiguration();
+            config.AccessToken = _accessToken;
+            config.Host = _host;
+            config.SkipTlsVerify = true;
+            IKubernetes client = new Kubernetes(config);
+            return client;
         }
 
         private V1Service CreateService(string appName)
@@ -166,7 +190,5 @@ namespace AdHocTestingEnvironments.Services
             configMap.Data["script.sql"] = initScript;
             return configMap;
         }
-
-     
     }
 }

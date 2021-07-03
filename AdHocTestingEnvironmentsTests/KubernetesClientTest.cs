@@ -19,6 +19,38 @@ namespace AdHocTestingEnvironmentsTests
         {
 
             //Arrange
+            IKubernetesClient client = CreateClient();
+
+            //Act
+            await client.StartEnvironment(new AdHocTestingEnvironments.Model.Kubernetes.InstanceInfo()
+            {
+                Image = "claudeglauser/sample-webapp:latest",
+                InitSqlScript = InitScript,
+                Name = "testwzei",
+            });
+        }
+
+        [Fact]
+        public async Task StopOk()
+        {
+            //Arrange           
+            IKubernetesClient client = CreateClient();
+
+            //Act
+            await client.StopEnvironment("testwzei");
+        }
+
+        private IConfiguration GetConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+                .AddUserSecrets<KubernetesClientTest>();
+
+            return builder.Build();
+
+        }
+
+        private IKubernetesClient CreateClient()
+        {
             IConfiguration configuration = GetConfiguration();
             string host = configuration.GetValue<string>("KubernetesHost");
             string token = configuration.GetValue<string>("KubernetesAccessToken");
@@ -35,22 +67,7 @@ namespace AdHocTestingEnvironmentsTests
 
             var mockLogger = new Mock<ILogger<KubernetesClient>>().Object;
             IKubernetesClient client = new KubernetesClient(mockConfiguration, mockLogger);
-
-            await client.StartEnvironment(new AdHocTestingEnvironments.Model.Kubernetes.InstanceInfo()
-            {
-                Image = "claudeglauser/sample-webapp:latest",
-                InitSqlScript = InitScript,
-                Name = "testwzei",
-            });
-        }
-
-        public IConfiguration GetConfiguration()
-        {
-            var builder = new ConfigurationBuilder()
-                .AddUserSecrets<KubernetesClientTest>();
-
-            return builder.Build();
-
+            return client;
         }
 
         private const string InitScript = @"

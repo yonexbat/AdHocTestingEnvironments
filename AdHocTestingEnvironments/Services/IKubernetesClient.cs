@@ -9,5 +9,7 @@ namespace AdHocTestingEnvironments.Services
     public interface IKubernetesClient
     {
         public Task<string> StartEnvironment(InstanceInfo instanceInfo);
+
+        public Task<string> StopEnvironment(string appName);
     }
 }
