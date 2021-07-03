@@ -1,4 +1,5 @@
-﻿using AdHocTestingEnvironments.Services;
+﻿using AdHocTestingEnvironments.Model.Environment;
+using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -14,43 +15,40 @@ namespace AdHocTestingEnvironments.Controllers
     public class AdHocTestingEnvironmentsController : ControllerBase
     {
 
-        private readonly IKubernetesClient _kubernetesClient;       
+        private readonly IEnvironmentService _environmentService;
 
-        public AdHocTestingEnvironmentsController(IKubernetesClient kubernetesClient)
+        public AdHocTestingEnvironmentsController(IEnvironmentService environmentService)
         {
-            _kubernetesClient = kubernetesClient;
+            _environmentService = environmentService;
         }
 
-        // GET: api/<AdHocTestingEnvironmentsController>
+        // GET: api/<AdHocEnvironmentController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IEnumerable<AdHocTestingEnvironmentInstanceViewModel>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return await _environmentService.ListEnvironmentInstances();
         }
 
-        // GET api/<AdHocTestingEnvironmentsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet]
+        public async Task<IEnumerable<TestingEnvironemntViewModel>> ListEnvironments()
         {
-            return "value";
+            return await _environmentService.ListEnvironmetns();
         }
 
-        // POST api/<AdHocTestingEnvironmentsController>
+
+        // POST api/<AdHocEnvironmentController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<string> Post([FromBody] string value)
         {
+            return await _environmentService.StartEnvironmentInstance(value);
         }
 
-        // PUT api/<AdHocTestingEnvironmentsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
 
-        // DELETE api/<AdHocTestingEnvironmentsController>/5
+        // DELETE api/<AdHocEnvironmentController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task Delete(string id)
         {
+            await _environmentService.StopEnvironmentInstance(id);
         }
     }
 }
