@@ -12,7 +12,7 @@ async function init() {
     const button = document.querySelector('#startButton');
     button.addEventListener('click', () => startApplicationClick());
 
-    /*setInterval(() => { initList() }, 3000);*/
+    setInterval(() => { initList() }, 30000);
 }
 
 async function loadDropdown() {

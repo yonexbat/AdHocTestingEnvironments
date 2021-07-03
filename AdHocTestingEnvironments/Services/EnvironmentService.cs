@@ -58,11 +58,14 @@ namespace AdHocTestingEnvironments.Services
             string randomString = CreateRandomString();
             string instanceName = $"{appName}{randomString}";
             AdHocEnvironmentConfig config = _environmentConfigOptions.Environments.Where(x => x.Name == appName).Single();
+
+           
+
             await _kubernetesClient.StartEnvironment(new CreateEnvironmentInstanceData()
             {
                 Image = config.ContainerImage,
-                Name = instanceName,
                 InitSqlScript = config.InitSql,
+                Name = instanceName,
             });
 
             _routingService.AddItem(new RoutingEntry()
@@ -83,10 +86,11 @@ namespace AdHocTestingEnvironments.Services
 
         private string CreateRandomString()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string chars = "abcdefghiklmnopqrstuvwxyz";
             return new string(Enumerable.Repeat(chars, 3)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
-
     }
+
 }
+
