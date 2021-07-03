@@ -15,16 +15,38 @@
 
         <div class="row form-group">
             <div class="col-md-12">
-                <label for="containerImage">Container Image of the application</label>
-                <input type="text" class="form-control" id="containerImage" placeholder="Containerimage" value="claudeglauser/sample-webapp:latest">
+                <label for="environmentname">Application</label>
+                <select class="form-control" id="environmentname">
+                    <option value="">please select</option>
+                </select>
                 <small id="containerImageHelp" class="form-text text-muted">ID of container image</small>
             </div>
         </div>
 
- 
+        <template id="instancetemplate">
+            <li>
+                <span id="name"></span>
+                <span id="state"></span>
+                <a href="#" id="link" target="_blank">open</a>
+                <a href="#" id="remove">x</a>
+            </li>
+        </template>
+
+        <button type="button" class="btn btn-primary" id="startButton">start application</button>
+
+        <hr />
+
+
+        <div>
+            <ol id="instancelist">
+            </ol>
+        </div>
 
 
 
-        <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
     </div>
 </div>
+
+@section Scripts {
+    <script type="module" src="~/js/modules/testingenvironmentsgui.js"></script>
+}

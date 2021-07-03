@@ -115,7 +115,7 @@ namespace AdHocTestingEnvironments.Services
         private IKubernetes CreateClient()
         {            
             _logger.LogInformation("Api host: {0}", _host);
-            _logger.LogInformation("Namespace: {0)", _namespace);
+            _logger.LogInformation("Namespace: {0}", _namespace);
 
             KubernetesClientConfiguration config = new KubernetesClientConfiguration();
             config.AccessToken = _accessToken;

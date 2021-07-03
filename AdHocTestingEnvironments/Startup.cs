@@ -33,7 +33,7 @@ namespace AdHocTestingEnvironments
 
             services.AddSingleton<RequestRouter>();
             services.AddSingleton<IRoutingService, RoutingService>();
-            services.AddSingleton<IEnvironmentService, EnvironmentService>();
+            services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IKubernetesClient, KubernetesClient>();
         }
 

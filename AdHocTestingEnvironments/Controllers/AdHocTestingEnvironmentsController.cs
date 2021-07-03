@@ -29,7 +29,7 @@ namespace AdHocTestingEnvironments.Controllers
             return await _environmentService.ListEnvironmentInstances();
         }
 
-        [HttpGet]
+        [HttpGet(nameof(ListEnvironments))]
         public async Task<IEnumerable<TestingEnvironemntViewModel>> ListEnvironments()
         {
             return await _environmentService.ListEnvironmetns();
