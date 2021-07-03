@@ -1,0 +1,7 @@
+resources:
+- deployment.yaml
+- service.yaml
+configMapGenerator:
+  - name: sqlinitscript
+    files:
+      - "script.sql"
