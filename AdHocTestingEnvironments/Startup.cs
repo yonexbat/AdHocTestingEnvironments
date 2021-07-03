@@ -34,6 +34,7 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<RequestRouter>();
             services.AddSingleton<IRoutingService, RoutingService>();
             services.AddSingleton<IEnvironmentService, EnvironmentService>();
+            services.AddScoped<IKubernetesClient, KubernetesClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
