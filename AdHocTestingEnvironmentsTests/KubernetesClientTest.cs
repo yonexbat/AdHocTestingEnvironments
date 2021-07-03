@@ -26,6 +26,7 @@ namespace AdHocTestingEnvironmentsTests
             var inMemorySettings = new Dictionary<string, string> {
                 {"KubernetesAccessToken", token},
                 {"KubernetesHost", host},
+                {"KubernetesNamespace", "default" }
             };
 
             IConfiguration mockConfiguration = new ConfigurationBuilder()
@@ -35,7 +36,12 @@ namespace AdHocTestingEnvironmentsTests
             var mockLogger = new Mock<ILogger<KubernetesClient>>().Object;
             IKubernetesClient client = new KubernetesClient(mockConfiguration, mockLogger);
 
-            await client.StartEnvironment("claudeglauser/sample-webapp:latest", "testtwo", initScript);
+            await client.StartEnvironment(new AdHocTestingEnvironments.Model.Kubernetes.InstanceInfo()
+            {
+                Image = "claudeglauser/sample-webapp:latest",
+                InitSqlScript = InitScript,
+                Name = "testwzei",
+            });
         }
 
         public IConfiguration GetConfiguration()
@@ -47,7 +53,7 @@ namespace AdHocTestingEnvironmentsTests
 
         }
 
-        private const string initScript = @"
+        private const string InitScript = @"
 CREATE DATABASE test;
 \connect test;
 

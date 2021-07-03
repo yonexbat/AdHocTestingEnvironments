@@ -1,10 +1,12 @@
-﻿using k8s;
+﻿using AdHocTestingEnvironments.Model.Kubernetes;
+using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services
@@ -13,6 +15,7 @@ namespace AdHocTestingEnvironments.Services
     {
         private readonly string _accessToken;
         private readonly string _host;
+        private readonly string _namespace;
         private readonly ILogger _logger;
 
         public KubernetesClient(IConfiguration configuration, ILogger<KubernetesClient> logger)
@@ -20,29 +23,64 @@ namespace AdHocTestingEnvironments.Services
             _logger = logger;
             _host = configuration.GetValue<string>("KubernetesHost");
             _accessToken = configuration.GetValue<string>("KubernetesAccessToken");
+            _namespace = configuration.GetValue<string>("KubernetesNamespace");
         }
 
-        public async Task<string> StartEnvironment(string image, string appName, string initScript)
+        public async Task<string> StartEnvironment(InstanceInfo instanceInfo)
         {
-            _logger.LogInformation("Starging environment. Imgage: {0}, AppName: {1}.", image, appName);
+            _logger.LogInformation("Starging environment. Imgage: {0}, AppName: {1}.", instanceInfo.Image, instanceInfo.Name);
             _logger.LogInformation("Api host: {0}", _host);
+            _logger.LogInformation("Namespace: {0)", _namespace);
 
             KubernetesClientConfiguration config = new KubernetesClientConfiguration();
             config.AccessToken = _accessToken;
             config.Host = _host;
-            config.SkipTlsVerify = true;            
+            config.SkipTlsVerify = true;
             IKubernetes client = new Kubernetes(config);
 
             //ConfigMap
-            var configMap = new V1ConfigMap();
-            configMap.Metadata = new V1ObjectMeta();
-            configMap.Metadata.Name = $"sql{appName}";
-            configMap.Data = new Dictionary<string, string>();
-            configMap.Data["script.sql"] = initScript;
-            var resConfigMap = await client.CreateNamespacedConfigMapAsync(configMap, "default");
+            var configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);
+            V1ConfigMap resConfigMap = await client.CreateNamespacedConfigMapAsync(configMap, _namespace);
+            string jsonString = JsonSerializer.Serialize(resConfigMap);
+            _logger.LogInformation("Created ConfigMap: {0}", jsonString);
 
 
+            // Deployment
+            var deployment = CreateDeployment(instanceInfo.Name, instanceInfo.Image);
+            var resDeployment = await client.CreateNamespacedDeploymentAsync(deployment, _namespace);
+            jsonString = JsonSerializer.Serialize(resDeployment);
+            _logger.LogInformation("Created Deployment: {0}", jsonString);
 
+
+            //Service
+            V1Service service = CreateService(instanceInfo.Name);
+            var resService = await client.CreateNamespacedServiceAsync(service, _namespace);
+            jsonString = JsonSerializer.Serialize(resService);
+            _logger.LogInformation("Created Service: {0}", jsonString);
+
+            return "Ok";
+        }
+
+        private V1Service CreateService(string appName)
+        {
+            V1Service service = new V1Service();
+            service.Metadata = new V1ObjectMeta();
+            service.Metadata.Name = appName;
+            service.Spec = new V1ServiceSpec();
+            service.Spec.Selector = new Dictionary<string, string>();
+            service.Spec.Selector["app"] = appName;
+            service.Spec.Ports = new List<V1ServicePort>();
+            V1ServicePort port = new V1ServicePort();
+            port.Protocol = "TCP";
+            port.Port = 80;
+            port.TargetPort = 80;
+            service.Spec.Type = "ClusterIP";
+            service.Spec.Ports.Add(port);
+            return service;
+        }
+
+        private V1Deployment CreateDeployment(string appName, string image)
+        {
             // Deployment
             var deployment = new V1Deployment();
             deployment.Metadata = new V1ObjectMeta();
@@ -66,6 +104,17 @@ namespace AdHocTestingEnvironments.Services
             volume.ConfigMap.Name = $"sql{appName}";
             deployment.Spec.Template.Spec.Volumes.Add(volume);
 
+            var appContainer = CreateAppContainer(appName, image);           
+            deployment.Spec.Template.Spec.Containers.Add(appContainer);
+
+            var psqlContainer = CreatePsqlContainer(appName);
+            deployment.Spec.Template.Spec.Containers.Add(psqlContainer);
+
+            return deployment;
+        }
+
+        private V1Container CreateAppContainer(string appName, string image)
+        {
             var appContainer = new V1Container();
             appContainer.Name = appName;
             appContainer.Image = image;
@@ -85,9 +134,11 @@ namespace AdHocTestingEnvironments.Services
                 Name = "DatabaseTech",
                 Value = $"NpgSql",
             });
+            return appContainer;
+        }
 
-            deployment.Spec.Template.Spec.Containers.Add(appContainer);
-
+        private V1Container CreatePsqlContainer(string appName)
+        {
             var psqlContainer = new V1Container();
             psqlContainer.Name = $"{appName}psql";
             psqlContainer.Image = "postgres";
@@ -103,33 +154,19 @@ namespace AdHocTestingEnvironments.Services
                 Name = "initscript",
                 MountPath = "/docker-entrypoint-initdb.d",
             });
-
-            deployment.Spec.Template.Spec.Containers.Add(psqlContainer);
-
-            var resDeployment = await client.CreateNamespacedDeploymentAsync(deployment, "default");
-
-
-            //Service
-            V1Service service = new V1Service();
-            service.Metadata = new V1ObjectMeta();
-            service.Metadata.Name = appName;
-            service.Spec = new V1ServiceSpec();
-            service.Spec.Selector = new Dictionary<string, string>();
-            service.Spec.Selector["app"] = appName;
-            service.Spec.Ports = new List<V1ServicePort>();
-            V1ServicePort port = new V1ServicePort();
-            port.Protocol = "TCP";
-            port.Port = 80;
-            port.TargetPort = 80;
-            service.Spec.Type = "ClusterIP";
-            service.Spec.Ports.Add(port);
-
-
-            var resService = await client.CreateNamespacedServiceAsync(service, "default");
-
-            return "Ok";
+            return psqlContainer;
         }
 
+        private V1ConfigMap CreateConfigMap(string appName, string initScript)
+        {
+            var configMap = new V1ConfigMap();
+            configMap.Metadata = new V1ObjectMeta();
+            configMap.Metadata.Name = appName;
+            configMap.Data = new Dictionary<string, string>();
+            configMap.Data["script.sql"] = initScript;
+            return configMap;
+        }
 
+     
     }
 }
