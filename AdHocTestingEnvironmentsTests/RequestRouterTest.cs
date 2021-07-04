@@ -2,6 +2,7 @@ using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Routing;
 using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Threading.Tasks;
@@ -57,9 +58,10 @@ namespace AdHocTestingEnvironmentsTests
 
             var contextMock = new DefaultHttpContext();
             contextMock.Request.Path = requestPath;
+            var mockLogger = new Mock<ILogger<RequestRouter>>().Object;
 
 
-            RequestRouter requestRouter = new RequestRouter(routingServiceMock.Object);
+            RequestRouter requestRouter = new RequestRouter(routingServiceMock.Object, mockLogger);
             return (requestRouter, contextMock, httpForwarderMock.Object);
         }
     }

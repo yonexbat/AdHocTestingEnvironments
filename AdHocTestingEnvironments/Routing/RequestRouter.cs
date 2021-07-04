@@ -2,6 +2,7 @@
 using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,28 +15,35 @@ namespace AdHocTestingEnvironments.Routing
     public class RequestRouter
     {
         private readonly IRoutingService _routingService;
+        private readonly ILogger _logger;
 
-        public RequestRouter(IRoutingService routingService)
+        public RequestRouter(IRoutingService routingService, ILogger<RequestRouter> logger)
         {
             _routingService = routingService;
+            _logger = logger;
         }
 
         public async Task RouteRequest(HttpContext httpContext, IHttpForwarder forwarder)
         {
+            _logger.LogInformation("RouteRequest");
+            var path = httpContext.Request.Path;
+            _logger.LogInformation("Path: {0}", path);
+
+            string destinationUrl = GetDestination(path);
+
             var invoker = new CustomHttpMessageInvoker();
             var transformer = new RequestTransformer(); // or HttpTransformer.Default;
             var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
 
-            var path = httpContext.Request.Path;
-            string destinationUrl = GetDestination(path);
-
+          
             var error = await forwarder.SendAsync(httpContext, destinationUrl, invoker, requestOptions, transformer);
 
             // Check if the proxy operation was successful
             if (error != ForwarderError.None)
             {
                 var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
-                var exception = errorFeature.Exception;
+                Exception exception = errorFeature.Exception;               
+                _logger.LogError(exception, "Error while proxying: {0}",exception.Message);
             }
         }
 

@@ -53,9 +53,10 @@ async function startApplicationClick(name) {
     if (value && value !== '') {
         await startApplication(value);
     }
-    
+    await initList();
 }
 
 async function stopApplicationClick(instanceName) {
     await stopApplication(instanceName);
+    await initList();
 }
