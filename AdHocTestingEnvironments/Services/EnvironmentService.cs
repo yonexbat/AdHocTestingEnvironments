@@ -17,15 +17,15 @@ namespace AdHocTestingEnvironments.Services
     {
 
         private readonly EnvironmentConfigOptions _environmentConfigOptions;
-        private readonly IKubernetesClient _kubernetesClient;
-        private readonly IRoutingService _routingService;
+        private readonly IKubernetesClientService _kubernetesClient;
+        private readonly IEndpointResolverService _routingService;
         private readonly ILogger _logger;
         private Random random = new Random();
 
         public EnvironmentService(
             IOptions<EnvironmentConfigOptions> options, 
-            IKubernetesClient kubernetesClient,
-            IRoutingService routingService,
+            IKubernetesClientService kubernetesClient,
+            IEndpointResolverService routingService,
             ILogger<EnvironmentService> logger)
         {
             _environmentConfigOptions = options.Value;
@@ -68,7 +68,7 @@ namespace AdHocTestingEnvironments.Services
                 Name = instanceName,
             });
 
-            _routingService.AddItem(new RoutingEntry()
+            _routingService.AddItem(new EndpointEntry()
             {
                 Name = instanceName,
                 Destination = $"http://{instanceName}",

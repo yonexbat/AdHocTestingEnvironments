@@ -1,5 +1,4 @@
 using AdHocTestingEnvironments.Model.EnvironmentConfig;
-using AdHocTestingEnvironments.Routing;
 using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,14 +30,15 @@ namespace AdHocTestingEnvironments
 
             services.AddHttpForwarder();
 
-            services.AddSingleton<RequestRouter>();
-            services.AddSingleton<IRoutingService, RoutingService>();
+            services.AddSingleton<IRequestRouterService, RequestRouterService>();
+            services.AddSingleton<IEndpointResolverService, EndpointResolverService>();
+            services.AddSingleton<IKubernetesFactory, KubernetesFactory>();
             services.AddScoped<IEnvironmentService, EnvironmentService>();
-            services.AddScoped<IKubernetesClient, KubernetesClient>();
+            services.AddScoped<IKubernetesClientService, KubernetesClientService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpForwarder forwarder, RequestRouter requestRouter)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpForwarder forwarder, IRequestRouterService requestRouter)
         {
             if (env.IsDevelopment())
             {

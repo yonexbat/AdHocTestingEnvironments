@@ -10,5 +10,7 @@ namespace AdHocTestingEnvironments.Model.Kubernetes
         public string Name { get; set; }
 
         public string Status { get; set; }
+
+        public DateTime? StartTime { get; set; }
     }
 }

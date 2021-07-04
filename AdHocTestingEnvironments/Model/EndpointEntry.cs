@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Model
 {
-    public class RoutingEntry
+    public class EndpointEntry
     {
         public string Name { get; set; }
 

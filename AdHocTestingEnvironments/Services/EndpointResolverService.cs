@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services
 {
-    public class RoutingService : IRoutingService
+    public class EndpointResolverService : IEndpointResolverService
     {
-        private readonly IDictionary<string, RoutingEntry> _routes = new Dictionary<string, RoutingEntry>();
+        private readonly IDictionary<string, EndpointEntry> _routes = new Dictionary<string, EndpointEntry>();
 
-        public RoutingEntry AddItem(RoutingEntry item)
+        public EndpointEntry AddItem(EndpointEntry item)
         {
             _routes[item.Name] = item;
             return item;
@@ -21,12 +21,12 @@ namespace AdHocTestingEnvironments.Services
             _routes.Remove(app);
         }
 
-        public RoutingEntry GetItem(string app)
+        public EndpointEntry GetItem(string app)
         {
             return _routes[app];
         }
 
-        public IList<RoutingEntry> GetItems()
+        public IList<EndpointEntry> GetItems()
         {
             return _routes.Values.ToList();
         }

@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services
 {
-    public interface IRoutingService
+    public interface IEndpointResolverService
     {
-        IList<RoutingEntry> GetItems();
+        IList<EndpointEntry> GetItems();
 
-        RoutingEntry GetItem(string app);
+        EndpointEntry GetItem(string app);
 
         void DeleteItem(string app);
 
-        RoutingEntry AddItem(RoutingEntry item);
+        EndpointEntry AddItem(EndpointEntry item);
     }
 }

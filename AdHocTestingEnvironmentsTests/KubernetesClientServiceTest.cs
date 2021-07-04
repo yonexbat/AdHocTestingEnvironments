@@ -11,7 +11,7 @@ using Xunit;
 
 namespace AdHocTestingEnvironmentsTests
 {
-    public class KubernetesClientTest
+    public class KubernetesClientServiceTest
     {
 
         [Fact]
@@ -19,7 +19,7 @@ namespace AdHocTestingEnvironmentsTests
         {
 
             //Arrange
-            IKubernetesClient client = CreateClient();
+            IKubernetesClientService client = CreateClient();
 
             //Act
             await client.StartEnvironment(new AdHocTestingEnvironments.Model.Kubernetes.CreateEnvironmentInstanceData()
@@ -34,7 +34,7 @@ namespace AdHocTestingEnvironmentsTests
         public async Task StopOk()
         {
             //Arrange           
-            IKubernetesClient client = CreateClient();
+            IKubernetesClientService client = CreateClient();
 
             //Act
             await client.StopEnvironment("testwzei");
@@ -44,7 +44,7 @@ namespace AdHocTestingEnvironmentsTests
         public async Task GetEnvironmentsOk()
         {
             //Arrange           
-            IKubernetesClient client = CreateClient();
+            IKubernetesClientService client = CreateClient();
 
             var result = await client.GetEnvironments();
         }
@@ -52,13 +52,13 @@ namespace AdHocTestingEnvironmentsTests
         private IConfiguration GetConfiguration()
         {
             var builder = new ConfigurationBuilder()
-                .AddUserSecrets<KubernetesClientTest>();
+                .AddUserSecrets<KubernetesClientServiceTest>();
 
             return builder.Build();
 
         }
 
-        private IKubernetesClient CreateClient()
+        private IKubernetesClientService CreateClient()
         {
             IConfiguration configuration = GetConfiguration();
             string host = configuration.GetValue<string>("KubernetesHost");
@@ -74,8 +74,11 @@ namespace AdHocTestingEnvironmentsTests
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            var mockLogger = new Mock<ILogger<KubernetesClient>>().Object;
-            IKubernetesClient client = new KubernetesClient(mockConfiguration, mockLogger);
+            var mockLogger = new Mock<ILogger<KubernetesClientService>>().Object;
+
+            IKubernetesFactory factory = new KubernetesFactory(mockConfiguration, new Mock<ILogger<KubernetesFactory>>().Object);
+
+            IKubernetesClientService client = new KubernetesClientService(mockConfiguration, factory, mockLogger);
             return client;
         }
 

@@ -11,20 +11,20 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services
 {
-    public class KubernetesClient : IKubernetesClient
+    public class KubernetesClientService : IKubernetesClientService
     {
-        private readonly string _accessToken;
-        private readonly string _host;
-        private readonly string _namespace;
+
         private readonly ILogger _logger;
+        private readonly IKubernetesFactory _kubernetesFactory;
+        private readonly string _namespace;
+
         private const string CREATOR_VALUE = "adhoctestingenvironments";
         private const string CREATOR_KEY = "creator";
 
-        public KubernetesClient(IConfiguration configuration, ILogger<KubernetesClient> logger)
+        public KubernetesClientService(IConfiguration configuration, IKubernetesFactory kubernetesFactory, ILogger<KubernetesClientService> logger)
         {
             _logger = logger;
-            _host = configuration.GetValue<string>("KubernetesHost");
-            _accessToken = configuration.GetValue<string>("KubernetesAccessToken");
+            _kubernetesFactory = kubernetesFactory;
             _namespace = configuration.GetValue<string>("KubernetesNamespace");
         }
 
@@ -102,7 +102,9 @@ namespace AdHocTestingEnvironments.Services
 
                     if(pod != null)
                     {
-                        x.Status = pod.Status?.Phase;
+                        //todo berechnen.
+                        
+                        x.StartTime = pod.Status?.StartTime;
                     }
                 });
 
@@ -113,16 +115,9 @@ namespace AdHocTestingEnvironments.Services
         }
 
         private IKubernetes CreateClient()
-        {            
-            _logger.LogInformation("Api host: {0}", _host);
+        {                       
             _logger.LogInformation("Namespace: {0}", _namespace);
-
-            KubernetesClientConfiguration config = new KubernetesClientConfiguration();
-            config.AccessToken = _accessToken;
-            config.Host = _host;
-            config.SkipTlsVerify = true;
-            IKubernetes client = new Kubernetes(config);
-            return client;
+            return _kubernetesFactory.CreateClient();
         }
 
         private V1Service CreateService(string appName)

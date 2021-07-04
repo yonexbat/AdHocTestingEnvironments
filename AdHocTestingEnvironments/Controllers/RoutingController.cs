@@ -15,37 +15,37 @@ namespace AdHocTestingEnvironments.Controllers
     public class RoutingController : ControllerBase
     {
 
-        private readonly IRoutingService _routingService;
+        private readonly IEndpointResolverService _routingService;
 
-        public RoutingController(IRoutingService routingService)
+        public RoutingController(IEndpointResolverService routingService)
         {
             _routingService = routingService;
         }
 
         // GET: api/<ValuesController>
         [HttpGet]
-        public IEnumerable<RoutingEntry> Get()
+        public IEnumerable<EndpointEntry> Get()
         {
             return _routingService.GetItems();
         }
 
         // GET api/<ValuesController>/5
         [HttpGet("{id}")]
-        public RoutingEntry Get(string id)
+        public EndpointEntry Get(string id)
         {
             return _routingService.GetItem(id);
         }
 
         // POST api/<ValuesController>
         [HttpPost]
-        public RoutingEntry Post([FromBody] RoutingEntry value)
+        public EndpointEntry Post([FromBody] EndpointEntry value)
         {
             return _routingService.AddItem(value);
         }
 
         // PUT api/<ValuesController>/5
         [HttpPut("{id}")]
-        public RoutingEntry Put(string id, [FromBody] RoutingEntry routingEntry)
+        public EndpointEntry Put(string id, [FromBody] EndpointEntry routingEntry)
         {
             var item = _routingService.GetItem(id);
             item.Destination = routingEntry.Destination;

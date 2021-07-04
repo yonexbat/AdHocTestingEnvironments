@@ -67,7 +67,7 @@ namespace AdHocTestingEnvironmentsTests
             var optionsMock = new Mock<IOptions<EnvironmentConfigOptions>>();
             optionsMock.Setup(ap => ap.Value).Returns(options);
 
-            var kubernetesClientMock = new Mock<IKubernetesClient>();
+            var kubernetesClientMock = new Mock<IKubernetesClientService>();
             var instanceListTask = Task.FromResult<IList<EnvironmentInstance>>(new List<EnvironmentInstance>()
                 { 
                     new EnvironmentInstance() { Name = "test", Status = "Running" }, 
@@ -76,7 +76,7 @@ namespace AdHocTestingEnvironmentsTests
             );
             kubernetesClientMock.Setup(kc => kc.GetEnvironments()).Returns(instanceListTask);
 
-            var routingServiceMock = new Mock<IRoutingService>();
+            var routingServiceMock = new Mock<IEndpointResolverService>();
 
             var mockLogger = new Mock<ILogger<EnvironmentService>>().Object;
 

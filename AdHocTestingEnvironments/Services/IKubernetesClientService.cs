@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services
 {
-    public interface IKubernetesClient
+    public interface IKubernetesClientService
     {
         public Task<string> StartEnvironment(CreateEnvironmentInstanceData instanceInfo);
 

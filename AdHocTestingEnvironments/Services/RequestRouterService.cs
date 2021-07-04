@@ -10,14 +10,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace AdHocTestingEnvironments.Routing
+namespace AdHocTestingEnvironments.Services
 {
-    public class RequestRouter
+    public class RequestRouterService : IRequestRouterService
     {
-        private readonly IRoutingService _routingService;
+        private readonly IEndpointResolverService _routingService;
         private readonly ILogger _logger;
 
-        public RequestRouter(IRoutingService routingService, ILogger<RequestRouter> logger)
+        public RequestRouterService(IEndpointResolverService routingService, ILogger<RequestRouterService> logger)
         {
             _routingService = routingService;
             _logger = logger;
@@ -55,7 +55,7 @@ namespace AdHocTestingEnvironments.Routing
             if(match.Success)
             {
                 string routeName = match.Groups["dest"].Value;
-                RoutingEntry item = _routingService.GetItem(routeName);
+                EndpointEntry item = _routingService.GetItem(routeName);
                 return item.Destination;
             }
 
