@@ -34,38 +34,31 @@ namespace AdHocTestingEnvironments.Services
             _logger = logger;
         }
 
-        public async Task<IList<AdHocTestingEnvironmentInstanceViewModel>> ListEnvironmentInstances()
+        public async Task<IList<EnvironmentInstance>> ListEnvironmentInstances()
         {
-            var env = await _kubernetesClient.GetEnvironments();
-            return env.Select(x => new AdHocTestingEnvironmentInstanceViewModel()
-            {
-                Name = x.Name,
-                Status = x.Status,
-            }).ToList();
-                
+            return await _kubernetesClient.GetEnvironments();                            
         }
 
-        public async Task<IList<TestingEnvironemntViewModel>> ListEnvironmetns()
+        public async Task<IList<Application>> ListEnvironmetns()
         {
-            return _environmentConfigOptions.Environments.Select(x => new TestingEnvironemntViewModel()
+            return _environmentConfigOptions.Environments.Select(x => new Application()
             {
                 Name = x.Name,
             }).ToList();
         }
 
-        public async Task<string> StartEnvironmentInstance(string appName)
-        {
+        public async Task<string> StartEnvironmentInstance(StartRequest startRequest)
+        {         
             string randomString = CreateRandomString();
-            string instanceName = $"{appName}{randomString}";
-            AdHocEnvironmentConfig config = _environmentConfigOptions.Environments.Where(x => x.Name == appName).Single();
-
-           
+            string instanceName = $"{startRequest.ApplicationName}{randomString}";
+            AdHocEnvironmentConfig config = _environmentConfigOptions.Environments.Where(x => x.Name == startRequest.ApplicationName).Single();           
 
             await _kubernetesClient.StartEnvironment(new CreateEnvironmentInstanceData()
             {
                 Image = config.ContainerImage,
                 InitSqlScript = config.InitSql,
                 Name = instanceName,
+                NumHoursToRun = startRequest.NumHoursToRun,
             });
 
             _routingService.AddItem(new EndpointEntry()

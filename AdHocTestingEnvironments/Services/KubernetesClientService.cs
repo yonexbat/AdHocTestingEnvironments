@@ -20,6 +20,7 @@ namespace AdHocTestingEnvironments.Services
 
         private const string CREATOR_VALUE = "adhoctestingenvironments";
         private const string CREATOR_KEY = "creator";
+        private const string UPTIME = "uptime";
 
         public KubernetesClientService(IConfiguration configuration, IKubernetesFactory kubernetesFactory, ILogger<KubernetesClientService> logger)
         {
@@ -49,7 +50,7 @@ namespace AdHocTestingEnvironments.Services
 
 
             // Service
-            V1Service service = CreateService(instanceInfo.Name);
+            V1Service service = CreateService(instanceInfo.Name, instanceInfo.NumHoursToRun);
             var resService = await client.CreateNamespacedServiceAsync(service, _namespace);
             jsonString = JsonSerializer.Serialize(resService);
             _logger.LogInformation("Created Service: {0}", jsonString);
@@ -84,13 +85,13 @@ namespace AdHocTestingEnvironments.Services
             if (serviceList.Items != null)
             {
                 List<EnvironmentInstance> appInstances = serviceList.Items
-                    .Where(x => x.Metadata.Labels?.Any() == true)
+                    .Where(x => x.Metadata?.Labels?.Any() == true)
                     .Where(x => x.Metadata.Labels.Any(l => l.Key == CREATOR_KEY && l.Value == CREATOR_VALUE))
-                    .Select(x => x.Metadata.Name)
                     .Select(x => new EnvironmentInstance()
                     {
-                        Name = x,
+                        Name = x.Metadata.Name,
                         Status = "Unknown",
+                        NumHoursToRun = x.Metadata.Labels.ContainsKey(UPTIME) ? int.Parse(x.Metadata.Labels[UPTIME]) : null,
                     })
                     .ToList();
 
@@ -103,6 +104,14 @@ namespace AdHocTestingEnvironments.Services
                     if(pod != null)
                     {
                         //todo berechnen.
+                        if(pod.Status?.Conditions?.Any(x => x.Type == "Ready" && x.Status == "True") == true)
+                        {
+                            x.Status = "Ready";
+                        } 
+                        else
+                        {
+                            x.Status = "Not ready yet";
+                        }
                         
                         x.StartTime = pod.Status?.StartTime;
                     }
@@ -120,13 +129,14 @@ namespace AdHocTestingEnvironments.Services
             return _kubernetesFactory.CreateClient();
         }
 
-        private V1Service CreateService(string appName)
+        private V1Service CreateService(string appName, int numHoursToRun)
         {
             V1Service service = new V1Service();
             service.Metadata = new V1ObjectMeta();
             service.Metadata.Name = appName;
             service.Metadata.Labels = new Dictionary<string, string>();
             service.Metadata.Labels[CREATOR_KEY] = CREATOR_VALUE;
+            service.Metadata.Labels[UPTIME] = $"{numHoursToRun}";
             service.Spec = new V1ServiceSpec();
             service.Spec.Selector = new Dictionary<string, string>();
             service.Spec.Selector["app"] = appName;

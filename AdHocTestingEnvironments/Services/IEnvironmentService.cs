@@ -9,12 +9,12 @@ namespace AdHocTestingEnvironments.Services
 {
     public interface IEnvironmentService
     {
-        Task<string> StartEnvironmentInstance(string appName);
+        Task<string> StartEnvironmentInstance(StartRequest dto);
 
         Task<string> StopEnvironmentInstance(string instanceName);
 
-        Task<IList<AdHocTestingEnvironmentInstanceViewModel>> ListEnvironmentInstances();
+        Task<IList<EnvironmentInstance>> ListEnvironmentInstances();
 
-        Task<IList<TestingEnvironemntViewModel>> ListEnvironmetns();
+        Task<IList<Application>> ListEnvironmetns();
     }
 }

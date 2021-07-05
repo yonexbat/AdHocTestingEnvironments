@@ -49,12 +49,12 @@ namespace AdHocTestingEnvironmentsTests
             ForceDeleteDirectory(path);
         }
 
-        public void StageChanges(Repository repo, string path)
+        private void StageChanges(Repository repo, string path)
         {
             Commands.Stage(repo, path);
         }
 
-        public void CommitChanges(Repository repo)
+        private void CommitChanges(Repository repo)
         {
             Signature signature = new Signature("larrylaffer", "larrylaffer@sierra.com", DateTimeOffset.Now);
             {
@@ -64,7 +64,7 @@ namespace AdHocTestingEnvironmentsTests
             repo.Commit("egotistic commit", signature, signature);
         }
 
-        public void PushChanges(Repository repo, string userName, string pw)
+        private void PushChanges(Repository repo, string userName, string pw)
         {
             var remote = repo.Network.Remotes["origin"];
             var options = new PushOptions()

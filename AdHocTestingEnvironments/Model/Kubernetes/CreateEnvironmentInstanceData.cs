@@ -10,5 +10,7 @@ namespace AdHocTestingEnvironments.Model.Kubernetes
         public string Name { get; set; }
         public string Image { get; set; }
         public string InitSqlScript { get; set; }
+
+        public int NumHoursToRun { get; set; }
     }
 }

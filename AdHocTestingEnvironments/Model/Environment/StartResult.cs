@@ -1,12 +1,13 @@
-﻿using System;
+﻿using AdHocTestingEnvironments.Model.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Model.Environment
 {
-    public class TestingEnvironemntViewModel
+    public class StartResult : Result
     {
-        public string Name { get; set; }
+        public string InstanceName { get; set; }
     }
 }

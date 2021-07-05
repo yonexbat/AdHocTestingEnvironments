@@ -32,10 +32,9 @@ async function initList() {
     for (const x of instances) {
         const templateInstatnce = document.importNode(template.content, true);
 
-        templateInstatnce.querySelector('#name').textContent = x.name;   
-        templateInstatnce.querySelector('#state').textContent = `(${x.status})`;        
+        templateInstatnce.querySelector('#info').textContent = `${x.name} (state: ${x.status}, starttime: ${x.startTime}, planned uptime: ${x.numHoursToRun})`;         
 
-        //link
+        // link
         const link = templateInstatnce.querySelector('#link');
         link.href = `/endpoint/${x.name}`;
 
@@ -48,10 +47,12 @@ async function initList() {
 }
 
 async function startApplicationClick(name) {
-    const dropdown = document.querySelector('#environmentname');
-    const value = dropdown.value;
-    if (value && value !== '') {
-        await startApplication(value);
+    const applicationName = document.querySelector('#environmentname').value;
+    const numhours = document.querySelector('#numhoursrunning').value;
+    const numHoursInt = parseInt(numhours);
+
+    if (applicationName && applicationName !== '' && numHoursInt > 0) {
+        await startApplication(applicationName, numHoursInt);
     }
     await initList();
 }

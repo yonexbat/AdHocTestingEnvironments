@@ -13,22 +13,36 @@
             Start an environment
         </h3>
 
+        
         <div class="row form-group">
-            <div class="col-md-12">
+
+            <!-- Application -->
+            <div class="col-md-6">
                 <label for="environmentname">Application</label>
                 <select class="form-control" id="environmentname">
                     <option value="">please select</option>
                 </select>
-                <small id="containerImageHelp" class="form-text text-muted">ID of container image</small>
+                <small id="containerImageHelp" class="form-text text-muted">The application to run</small>
+            </div>
+
+            <!-- Num hours to run -->
+            <div class="col-md-6">
+                <label for="numhoursrunning">Num hours uptime</label>
+                <select class="form-control" id="numhoursrunning">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+                <small id="numhoursrunningHelp" class="form-text text-muted">Number of hours the application will run</small>
             </div>
         </div>
 
         <template id="instancetemplate">
             <li>
-                <span id="name"></span>
-                <span id="state"></span>
+                <span id="info"></span>               
                 <a href="#" id="link" target="_blank">open</a>
-                <a href="#" id="remove">x</a>
+                <a href="#" id="remove">delete</a>
             </li>
         </template>
 
@@ -36,6 +50,9 @@
 
         <hr />
 
+        <h3>
+            Running applications
+        </h3>
 
         <div>
             <ol id="instancelist">

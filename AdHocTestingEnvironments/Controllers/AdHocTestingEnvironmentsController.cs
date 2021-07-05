@@ -1,4 +1,6 @@
-﻿using AdHocTestingEnvironments.Model.Environment;
+﻿using AdHocTestingEnvironments.Model.Common;
+using AdHocTestingEnvironments.Model.Environment;
+using AdHocTestingEnvironments.Model.Kubernetes;
 using AdHocTestingEnvironments.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,13 +26,13 @@ namespace AdHocTestingEnvironments.Controllers
 
         // GET: api/<AdHocEnvironmentController>
         [HttpGet]
-        public async Task<IEnumerable<AdHocTestingEnvironmentInstanceViewModel>> Get()
+        public async Task<IEnumerable<EnvironmentInstance>> Get()
         {
             return await _environmentService.ListEnvironmentInstances();
         }
 
         [HttpGet(nameof(ListEnvironments))]
-        public async Task<IEnumerable<TestingEnvironemntViewModel>> ListEnvironments()
+        public async Task<IEnumerable<Application>> ListEnvironments()
         {
             return await _environmentService.ListEnvironmetns();
         }
@@ -38,17 +40,19 @@ namespace AdHocTestingEnvironments.Controllers
 
         // POST api/<AdHocEnvironmentController>
         [HttpPost]
-        public async Task<string> Post([FromBody] string value)
+        public async Task<StartResult> Post([FromBody] StartRequest dto)
         {
-            return await _environmentService.StartEnvironmentInstance(value);
+            var instanceName = await _environmentService.StartEnvironmentInstance(dto);
+            return new StartResult() { Status = "Ok", InstanceName = instanceName, };
         }
 
 
         // DELETE api/<AdHocEnvironmentController>/5
         [HttpDelete("{id}")]
-        public async Task Delete(string id)
+        public async Task<Result> Delete(string id)
         {
             await _environmentService.StopEnvironmentInstance(id);
+            return new Result() { Status = "Ok", };
         }
     }
 }

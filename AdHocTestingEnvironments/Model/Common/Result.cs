@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Model.Environment
+namespace AdHocTestingEnvironments.Model.Common
 {
-    public class AdHocTestingEnvironmentInstanceViewModel
+    public class Result
     {
-        public string Name { get; set; }
-
         public string Status { get; set; }
     }
 }

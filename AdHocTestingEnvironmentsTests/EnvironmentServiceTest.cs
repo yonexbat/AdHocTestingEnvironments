@@ -1,4 +1,5 @@
 ﻿using AdHocTestingEnvironments.Model;
+using AdHocTestingEnvironments.Model.Environment;
 using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Model.Kubernetes;
 using AdHocTestingEnvironments.Services;
@@ -37,7 +38,14 @@ namespace AdHocTestingEnvironmentsTests
         public async Task StartEnvironmentInstanceOk()
         {
             IEnvironmentService service = CreateService();
-            var start = await service.StartEnvironmentInstance("sampleapp");
+            var startRquest = new StartRequest()
+            {
+                ApplicationName  = "sampleapp",
+                NumHoursToRun = 2,
+
+            };
+
+            var start = await service.StartEnvironmentInstance(startRquest);
         }
 
 
@@ -45,7 +53,13 @@ namespace AdHocTestingEnvironmentsTests
         public async Task StopEnvironmentInstanceOk()
         {
             IEnvironmentService service = CreateService();
-            var start = await service.StartEnvironmentInstance("sampleapp");
+            var startRquest = new StartRequest()
+            {
+                ApplicationName = "sampleapp",
+                NumHoursToRun = 2,
+
+            };
+            var start = await service.StartEnvironmentInstance(startRquest);
             await service.StopEnvironmentInstance(start);
         }
 
