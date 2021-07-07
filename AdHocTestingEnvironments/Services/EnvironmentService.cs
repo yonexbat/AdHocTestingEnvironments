@@ -48,7 +48,14 @@ namespace AdHocTestingEnvironments.Services
         }
 
         public async Task<string> StartEnvironmentInstance(StartRequest startRequest)
-        {         
+        {
+
+            var environments = await ListEnvironmentInstances();
+            if(environments.Count > 3)
+            {
+                throw new ArgumentException($"Max 3 environment instances allowed");
+            }
+
             string randomString = CreateRandomString();
             string instanceName = $"{startRequest.ApplicationName}{randomString}";
             AdHocEnvironmentConfig config = _environmentConfigOptions.Environments.Where(x => x.Name == startRequest.ApplicationName).Single();           
