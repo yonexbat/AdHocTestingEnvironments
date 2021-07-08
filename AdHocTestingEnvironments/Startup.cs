@@ -35,6 +35,9 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<IKubernetesFactory, KubernetesFactory>();
             services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IKubernetesClientService, KubernetesClientService>();
+            services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
+
+            services.AddHostedService<TimerBackgroundService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
