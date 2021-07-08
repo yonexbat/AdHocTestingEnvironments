@@ -26,7 +26,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpGet]
         public IEnumerable<EndpointEntry> Get()
         {
-            return _routingService.GetItems();
+            return _routingService.GetCustomItem();
         }
 
         // GET api/<ValuesController>/5
@@ -40,7 +40,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpPost]
         public EndpointEntry Post([FromBody] EndpointEntry value)
         {
-            return _routingService.AddItem(value);
+            return _routingService.AddCustomItem(value);
         }
 
         // PUT api/<ValuesController>/5
@@ -57,7 +57,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpDelete("{id}")]
         public void Delete(string id)
         {
-            _routingService.DeleteItem(id);
+            _routingService.DeleteCustomItem(id);
         }
     }
 }

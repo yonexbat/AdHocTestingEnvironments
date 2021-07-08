@@ -8,12 +8,12 @@ namespace AdHocTestingEnvironments.Services
 {
     public interface IEndpointResolverService
     {
-        IList<EndpointEntry> GetItems();
+        IList<EndpointEntry> GetCustomItem();
 
         EndpointEntry GetItem(string app);
 
-        void DeleteItem(string app);
+        void DeleteCustomItem(string app);
 
-        EndpointEntry AddItem(EndpointEntry item);
+        EndpointEntry AddCustomItem(EndpointEntry item);
     }
 }

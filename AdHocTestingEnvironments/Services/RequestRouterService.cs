@@ -31,6 +31,7 @@ namespace AdHocTestingEnvironments.Services
 
             string destinationUrl = GetDestination(path);
 
+
             var invoker = new CustomHttpMessageInvoker();
             var transformer = new RequestTransformer(); // or HttpTransformer.Default;
             var requestOptions = new ForwarderRequestConfig { Timeout = TimeSpan.FromSeconds(100) };
@@ -44,6 +45,7 @@ namespace AdHocTestingEnvironments.Services
                 var errorFeature = httpContext.Features.Get<IForwarderErrorFeature>();
                 Exception exception = errorFeature.Exception;               
                 _logger.LogError(exception, "Error while proxying: {0}",exception.Message);
+                await httpContext.Response.WriteAsync("Error");
             }
         }
 
@@ -60,7 +62,6 @@ namespace AdHocTestingEnvironments.Services
             }
 
             throw new ArgumentException("No match found");
-
         }
     }
 }

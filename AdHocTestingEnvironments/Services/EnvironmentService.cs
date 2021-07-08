@@ -68,7 +68,7 @@ namespace AdHocTestingEnvironments.Services
                 NumHoursToRun = startRequest.NumHoursToRun,
             });
 
-            _routingService.AddItem(new EndpointEntry()
+            _routingService.AddCustomItem(new EndpointEntry()
             {
                 Name = instanceName,
                 Destination = $"http://{instanceName}",
@@ -79,7 +79,7 @@ namespace AdHocTestingEnvironments.Services
 
         public async Task<string> StopEnvironmentInstance(string instanceName)
         {
-            _routingService.DeleteItem(instanceName);
+            _routingService.DeleteCustomItem(instanceName);
             await _kubernetesClient.StopEnvironment(instanceName);
             return "Ok";
         }
