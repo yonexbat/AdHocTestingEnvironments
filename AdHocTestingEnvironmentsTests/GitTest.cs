@@ -17,9 +17,9 @@ namespace AdHocTestingEnvironmentsTests
         {
             IConfiguration configuration = GetConfiguration();
             string localPath = configuration.GetValue<string>("path");
-            string gitUrl = configuration.GetValue<string>("giturl");
-            string gitUser = configuration.GetValue<string>("gituser");
-            string gitPassword = configuration.GetValue<string>("gitpwd");
+            string gitUrl = configuration.GetValue<string>("GitUrl");
+            string gitUser = configuration.GetValue<string>("GitUser");
+            string gitPassword = configuration.GetValue<string>("GitPw");
 
 
             string path = $"{localPath}{Path.DirectorySeparatorChar}gittest";

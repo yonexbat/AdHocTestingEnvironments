@@ -36,11 +36,13 @@ namespace AdHocTestingEnvironmentsTests
             string gitUrl = configuration.GetValue<string>("GitUrl");
             string user = configuration.GetValue<string>("GitUser");
             string pw = configuration.GetValue<string>("GitPw");
+            string branch = configuration.GetValue<string>("GitBranch");
 
             var inMemorySettings = new Dictionary<string, string> {
                 {"GitUrl", gitUrl},
                 {"GitUser", user},
                 {"GitPw", pw},
+                {"GitBranch",  branch},
             };
 
             IConfiguration mockConfiguration = new ConfigurationBuilder()
