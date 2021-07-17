@@ -1,4 +1,5 @@
-﻿using k8s;
+﻿using AdHocTestingEnvironments.Services.Interfaces;
+using k8s;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Implementations
 {
     public class KubernetesFactory : IKubernetesFactory
     {
@@ -21,7 +22,7 @@ namespace AdHocTestingEnvironments.Services
             _logger = logger;
             _logger = logger;
             _host = configuration.GetValue<string>("KubernetesHost");
-            _accessToken = configuration.GetValue<string>("KubernetesAccessToken");            
+            _accessToken = configuration.GetValue<string>("KubernetesAccessToken");
         }
 
         public IKubernetes CreateClient()

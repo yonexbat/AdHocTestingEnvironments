@@ -2,6 +2,7 @@
 using AdHocTestingEnvironments.Model.Environment;
 using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Model.Kubernetes;
+using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -9,9 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Implementations
 {
-   
+
 
     public class EnvironmentService : IEnvironmentService
     {
@@ -23,7 +24,7 @@ namespace AdHocTestingEnvironments.Services
         private Random random = new Random();
 
         public EnvironmentService(
-            IOptions<EnvironmentConfigOptions> options, 
+            IOptions<EnvironmentConfigOptions> options,
             IKubernetesClientService kubernetesClient,
             IEndpointResolverService routingService,
             ILogger<EnvironmentService> logger)
@@ -36,7 +37,7 @@ namespace AdHocTestingEnvironments.Services
 
         public async Task<IList<EnvironmentInstance>> ListEnvironmentInstances()
         {
-            return await _kubernetesClient.GetEnvironments();                            
+            return await _kubernetesClient.GetEnvironments();
         }
 
         public async Task<IList<Application>> ListEnvironmetns()
@@ -51,14 +52,14 @@ namespace AdHocTestingEnvironments.Services
         {
 
             var environments = await ListEnvironmentInstances();
-            if(environments.Count > 3)
+            if (environments.Count > 3)
             {
                 throw new ArgumentException($"Max 3 environment instances allowed");
             }
 
             string randomString = CreateRandomString();
             string instanceName = $"{startRequest.ApplicationName}{randomString}";
-            AdHocEnvironmentConfig config = _environmentConfigOptions.Environments.Where(x => x.Name == startRequest.ApplicationName).Single();           
+            AdHocEnvironmentConfig config = _environmentConfigOptions.Environments.Where(x => x.Name == startRequest.ApplicationName).Single();
 
             await _kubernetesClient.StartEnvironment(new CreateEnvironmentInstanceData()
             {
@@ -72,7 +73,7 @@ namespace AdHocTestingEnvironments.Services
             {
                 Name = instanceName,
                 Destination = $"http://{instanceName}",
-            }); 
+            });
 
             return instanceName;
         }

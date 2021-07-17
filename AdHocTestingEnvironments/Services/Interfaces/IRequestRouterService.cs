@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Yarp.ReverseProxy.Forwarder;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Interfaces
 {
     public interface IRequestRouterService
     {

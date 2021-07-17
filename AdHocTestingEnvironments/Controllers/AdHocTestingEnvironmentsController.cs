@@ -1,7 +1,7 @@
 ﻿using AdHocTestingEnvironments.Model.Common;
 using AdHocTestingEnvironments.Model.Environment;
 using AdHocTestingEnvironments.Model.Kubernetes;
-using AdHocTestingEnvironments.Services;
+using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;

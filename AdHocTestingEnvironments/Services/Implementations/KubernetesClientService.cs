@@ -1,4 +1,5 @@
 ﻿using AdHocTestingEnvironments.Model.Kubernetes;
+using AdHocTestingEnvironments.Services.Interfaces;
 using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Implementations
 {
     public class KubernetesClientService : IKubernetesClientService
     {
@@ -53,7 +54,7 @@ namespace AdHocTestingEnvironments.Services
                 var resService = await client.CreateNamespacedServiceAsync(service, _namespace);
                 jsonString = JsonSerializer.Serialize(resService);
                 _logger.LogInformation("Created Service: {0}", jsonString);
-            }         
+            }
             return "Ok";
         }
 
@@ -85,7 +86,7 @@ namespace AdHocTestingEnvironments.Services
             {
                 serviceList = await client.ListNamespacedServiceAsync(_namespace);
                 podList = await client.ListNamespacedPodAsync(_namespace);
-            }       
+            }
 
             if (serviceList.Items != null)
             {
@@ -106,18 +107,18 @@ namespace AdHocTestingEnvironments.Services
                         .Where(p => (p.Metadata?.Name ?? string.Empty).StartsWith(x.Name))
                         .SingleOrDefault();
 
-                    if(pod != null)
+                    if (pod != null)
                     {
                         //todo berechnen.
-                        if(pod.Status?.Conditions?.Any(x => x.Type == "Ready" && x.Status == "True") == true)
+                        if (pod.Status?.Conditions?.Any(x => x.Type == "Ready" && x.Status == "True") == true)
                         {
                             x.Status = "Ready";
-                        } 
+                        }
                         else
                         {
                             x.Status = "Not ready yet";
                         }
-                        
+
                         x.StartTime = pod.Status?.StartTime;
                     }
                 });
@@ -129,7 +130,7 @@ namespace AdHocTestingEnvironments.Services
         }
 
         private IKubernetes CreateClient()
-        {                       
+        {
             _logger.LogInformation("Namespace: {0}", _namespace);
             return _kubernetesFactory.CreateClient();
         }
@@ -165,7 +166,7 @@ namespace AdHocTestingEnvironments.Services
             var volume = CreateVolumeForPlsqlContainer(appName);
             deployment.Spec.Template.Spec.Volumes.Add(volume);
 
-            var appContainer = CreateAppContainer(appName, image);           
+            var appContainer = CreateAppContainer(appName, image);
             deployment.Spec.Template.Spec.Containers.Add(appContainer);
 
             var psqlContainer = CreatePsqlContainer(appName);

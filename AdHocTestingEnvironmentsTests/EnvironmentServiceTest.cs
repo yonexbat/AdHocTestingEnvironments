@@ -2,7 +2,8 @@
 using AdHocTestingEnvironments.Model.Environment;
 using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Model.Kubernetes;
-using AdHocTestingEnvironments.Services;
+using AdHocTestingEnvironments.Services.Implementations;
+using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Implementations
 {
     public class EnvironmentKillerService : IEnvironmentKillerService
     {
@@ -28,9 +28,9 @@ namespace AdHocTestingEnvironments.Services
             DateTimeOffset currentTime = _currentTimeService.GetCurrentUtcTime();
             var envsToDelete = list
                 .Where(x => x.StartTime.HasValue)
-                .Where(x => (x.StartTime + new TimeSpan(x.NumHoursToRun ?? 1, 0, 0)) < currentTime);
-            
-            foreach(var instance in envsToDelete)
+                .Where(x => x.StartTime + new TimeSpan(x.NumHoursToRun ?? 1, 0, 0) < currentTime);
+
+            foreach (var instance in envsToDelete)
             {
                 _logger.LogInformation($"Killing environment {instance.Name}.");
                 await _kubernetesClientService.StopEnvironment(instance.Name);

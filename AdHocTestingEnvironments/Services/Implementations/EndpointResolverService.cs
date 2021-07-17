@@ -1,11 +1,12 @@
 ﻿using AdHocTestingEnvironments.Model;
+using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Implementations
 {
     public class EndpointResolverService : IEndpointResolverService
     {
@@ -31,7 +32,7 @@ namespace AdHocTestingEnvironments.Services
 
         public EndpointEntry GetItem(string app)
         {
-            if(_routes.ContainsKey(app))
+            if (_routes.ContainsKey(app))
             {
                 _logger.LogInformation("Explicit route found");
                 return _routes[app];

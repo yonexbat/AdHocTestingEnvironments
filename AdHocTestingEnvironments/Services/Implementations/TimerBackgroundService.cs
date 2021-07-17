@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AdHocTestingEnvironments.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AdHocTestingEnvironments.Services
+namespace AdHocTestingEnvironments.Services.Implementations
 {
     public class TimerBackgroundService : BackgroundService, IDisposable
     {
@@ -38,11 +39,11 @@ namespace AdHocTestingEnvironments.Services
                     await environmentKillerService.KillDueEnvironments();
                 }
 
-                await Task.Delay(1000*60*60, stoppingToken);
-            }            
+                await Task.Delay(1000 * 60 * 60, stoppingToken);
+            }
         }
 
-        
+
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Service is stopping");
