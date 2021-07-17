@@ -78,8 +78,9 @@ namespace AdHocTestingEnvironmentsTests
             var mockLogger = new Mock<ILogger<KubernetesClientService>>().Object;
 
             IKubernetesFactory factory = new KubernetesFactory(mockConfiguration, new Mock<ILogger<KubernetesFactory>>().Object);
+            IKubernetesObjectBuilder objectBuilder = new KubernetesObjectBuilder();
 
-            IKubernetesClientService client = new KubernetesClientService(mockConfiguration, factory, mockLogger);
+            IKubernetesClientService client = new KubernetesClientService(mockConfiguration, factory, objectBuilder, mockLogger);
             return client;
         }
 

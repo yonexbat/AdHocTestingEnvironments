@@ -35,6 +35,7 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<IEndpointResolverService, EndpointResolverService>();
             services.AddSingleton<IKubernetesFactory, KubernetesFactory>();
             services.AddSingleton<ICurrentTimeService, CurrentTimeService>();
+            services.AddSingleton<IKubernetesObjectBuilder, KubernetesObjectBuilder>();
             services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IKubernetesClientService, KubernetesClientService>();
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
