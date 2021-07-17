@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services.Interfaces
 {
-    public interface IGitClientService
+    public interface IGitClientService : IKubernetesClientService
     {
         Task CheckOut();
     }

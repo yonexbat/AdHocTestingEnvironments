@@ -56,19 +56,18 @@ namespace AdHocTestingEnvironmentsTests
                 .AddUserSecrets<KubernetesClientServiceTest>();
 
             return builder.Build();
-
         }
 
         private IKubernetesClientService CreateClient()
         {
             IConfiguration configuration = GetConfiguration();
             string host = configuration.GetValue<string>("KubernetesHost");
-            string token = configuration.GetValue<string>("KubernetesAccessToken");
+            string token = configuration.GetValue<string>("KubernetesAccessToken");          
 
             var inMemorySettings = new Dictionary<string, string> {
                 {"KubernetesAccessToken", token},
                 {"KubernetesHost", host},
-                {"KubernetesNamespace", "default" }
+                {"KubernetesNamespace", "default" },
             };
 
             IConfiguration mockConfiguration = new ConfigurationBuilder()
