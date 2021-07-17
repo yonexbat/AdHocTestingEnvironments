@@ -26,6 +26,8 @@ namespace AdHocTestingEnvironments.Services.Implementations
         {
             string localPath = $"{Path.GetTempPath()}git";
             _logger.LogInformation("Local git path: {0}, Git Repo: {1}", localPath, _gitUrl);
+
+            // delete directory first.
             ForceDeleteDirectory(localPath);
             Repository.Clone(_gitUrl, localPath);
         }
