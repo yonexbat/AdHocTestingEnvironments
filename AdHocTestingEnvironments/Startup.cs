@@ -36,6 +36,7 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<IKubernetesFactory, KubernetesFactory>();
             services.AddSingleton<ICurrentTimeService, CurrentTimeService>();
             services.AddSingleton<IKubernetesObjectBuilder, KubernetesObjectBuilder>();
+            services.AddSingleton<IGitClientService, GitClientService>();
             services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IKubernetesClientService, KubernetesClientService>();
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
@@ -44,7 +45,12 @@ namespace AdHocTestingEnvironments
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpForwarder forwarder, IRequestRouterService requestRouter)
+        public void Configure(
+            IApplicationBuilder app, 
+            IWebHostEnvironment env, 
+            IHttpForwarder forwarder, 
+            IRequestRouterService requestRouter,
+            IGitClientService gitClientService)
         {
             if (env.IsDevelopment())
             {
@@ -79,6 +85,11 @@ namespace AdHocTestingEnvironments
                     await requestRouter.RouteRequest(httpContext, forwarder);
                 });
             });
+
+            if(Configuration.GetValue<bool>("UseGitClient"))
+            {
+                gitClientService.CheckOut().Wait();
+            }
         }
     }
 }
