@@ -26,22 +26,37 @@ namespace AdHocTestingEnvironments.Services.Implementations
         {
             string localPath = $"{Path.GetTempPath()}git";
             _logger.LogInformation("Local git path: {0}, Git Repo: {1}", localPath, _gitUrl);
-
-            // delete directory first.
-            ForceDeleteDirectory(localPath);
-            Repository.Clone(_gitUrl, localPath);
+            
+            try
+            {
+                // delete directory first.
+                ForceDeleteDirectory(localPath);
+                Repository.Clone(_gitUrl, localPath);
+            } 
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
         }
 
         private void ForceDeleteDirectory(string path)
         {
-            var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
-
-            foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+            if (Directory.Exists(path))
             {
-                info.Attributes = FileAttributes.Normal;
-            }
+                _logger.LogInformation("Directory already exist. Will delete it and recreate it");
+                var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
 
-            directory.Delete(true);
+                foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+                {
+                    info.Attributes = FileAttributes.Normal;
+                }
+
+                directory.Delete(true);
+            } 
+            else
+            {
+                _logger.LogInformation("Directory does not exist");
+            }
         }
     }
 }
