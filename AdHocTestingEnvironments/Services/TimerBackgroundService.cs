@@ -38,7 +38,6 @@ namespace AdHocTestingEnvironments.Services
                     await environmentKillerService.KillDueEnvironments();
                 }
 
-
                 await Task.Delay(1000*60*60, stoppingToken);
             }            
         }

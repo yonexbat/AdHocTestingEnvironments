@@ -1,5 +1,7 @@
 using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Services;
+using AdHocTestingEnvironments.Services.Implementations;
+using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +35,7 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<IRequestRouterService, RequestRouterService>();
             services.AddSingleton<IEndpointResolverService, EndpointResolverService>();
             services.AddSingleton<IKubernetesFactory, KubernetesFactory>();
+            services.AddSingleton<ICurrentTimeService, CurrentTimeService>();
             services.AddScoped<IEnvironmentService, EnvironmentService>();
             services.AddScoped<IKubernetesClientService, KubernetesClientService>();
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();

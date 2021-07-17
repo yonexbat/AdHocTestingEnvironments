@@ -3,7 +3,6 @@ using k8s;
 using k8s.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -33,44 +32,45 @@ namespace AdHocTestingEnvironments.Services
         {
             _logger.LogInformation("Starting environment. Imgage: {0}, AppName: {1}.", instanceInfo.Image, instanceInfo.Name);
 
-            IKubernetes client = CreateClient();
-
-            // ConfigMap
-            var configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);
-            V1ConfigMap resConfigMap = await client.CreateNamespacedConfigMapAsync(configMap, _namespace);
-            string jsonString = JsonSerializer.Serialize(resConfigMap);
-            _logger.LogInformation("Created ConfigMap: {0}", jsonString);
-
-
-            // Deployment
-            var deployment = CreateDeployment(instanceInfo.Name, instanceInfo.Image);
-            var resDeployment = await client.CreateNamespacedDeploymentAsync(deployment, _namespace);
-            jsonString = JsonSerializer.Serialize(resDeployment);
-            _logger.LogInformation("Created Deployment: {0}", jsonString);
+            using (IKubernetes client = CreateClient())
+            {
+                // ConfigMap
+                var configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);
+                V1ConfigMap resConfigMap = await client.CreateNamespacedConfigMapAsync(configMap, _namespace);
+                string jsonString = JsonSerializer.Serialize(resConfigMap);
+                _logger.LogInformation("Created ConfigMap: {0}", jsonString);
 
 
-            // Service
-            V1Service service = CreateService(instanceInfo.Name, instanceInfo.NumHoursToRun);
-            var resService = await client.CreateNamespacedServiceAsync(service, _namespace);
-            jsonString = JsonSerializer.Serialize(resService);
-            _logger.LogInformation("Created Service: {0}", jsonString);
+                // Deployment
+                var deployment = CreateDeployment(instanceInfo.Name, instanceInfo.Image);
+                var resDeployment = await client.CreateNamespacedDeploymentAsync(deployment, _namespace);
+                jsonString = JsonSerializer.Serialize(resDeployment);
+                _logger.LogInformation("Created Deployment: {0}", jsonString);
 
+
+                // Service
+                V1Service service = CreateService(instanceInfo.Name, instanceInfo.NumHoursToRun);
+                var resService = await client.CreateNamespacedServiceAsync(service, _namespace);
+                jsonString = JsonSerializer.Serialize(resService);
+                _logger.LogInformation("Created Service: {0}", jsonString);
+            }         
             return "Ok";
         }
 
         public async Task<string> StopEnvironment(string appName)
         {
             _logger.LogInformation("Stopping environment: {0}", appName);
-            IKubernetes client = CreateClient();
-            
-            await client.DeleteNamespacedServiceAsync(appName, _namespace);
-            _logger.LogInformation("Stopped service {0}", appName);
+            using (IKubernetes client = CreateClient())
+            {
+                await client.DeleteNamespacedServiceAsync(appName, _namespace);
+                _logger.LogInformation("Stopped service {0}", appName);
 
-            await client.DeleteNamespacedDeploymentAsync(appName, _namespace);
-            _logger.LogInformation("Stopped deployment {0}. Pods take a while to shut down", appName);
+                await client.DeleteNamespacedDeploymentAsync(appName, _namespace);
+                _logger.LogInformation("Stopped deployment {0}. Pods take a while to shut down", appName);
 
-            await client.DeleteNamespacedConfigMapAsync(appName, _namespace);
-            _logger.LogInformation("Stopped configmap: {0}", appName);
+                await client.DeleteNamespacedConfigMapAsync(appName, _namespace);
+                _logger.LogInformation("Deleted configmap: {0}", appName);
+            }
 
             return "Ok";
         }
@@ -78,9 +78,14 @@ namespace AdHocTestingEnvironments.Services
         public async Task<IList<EnvironmentInstance>> GetEnvironments()
         {
             _logger.LogInformation("Getting environments");
-            IKubernetes client = CreateClient();
-            V1ServiceList serviceList = await client.ListNamespacedServiceAsync(_namespace);
-            V1PodList podList = await client.ListNamespacedPodAsync(_namespace);
+            V1ServiceList serviceList;
+            V1PodList podList;
+
+            using (IKubernetes client = CreateClient())
+            {
+                serviceList = await client.ListNamespacedServiceAsync(_namespace);
+                podList = await client.ListNamespacedPodAsync(_namespace);
+            }       
 
             if (serviceList.Items != null)
             {
