@@ -1,3 +1,7 @@
+configMapGenerator:
+- name: theconfigmap
+  files:
+  - certificate.pfx
 resources:
 - secret.yaml
 - deployment.yaml
