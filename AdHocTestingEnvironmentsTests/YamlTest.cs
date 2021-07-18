@@ -1,4 +1,5 @@
-﻿using k8s;
+﻿using AdHocTestingEnvironments.Model.GitService;
+using k8s;
 using k8s.Models;
 using System;
 using System.Collections.Generic;
@@ -6,19 +7,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace AdHocTestingEnvironmentsTests
 {
     public class YamlTest
     {
         [Fact]
-        void SaveAsYaml()
+        public void SaveAsYaml()
         {
             V1Deployment deployment = CreateDeployment("sfsd", "dsfds");
-            string configMapAsString = Yaml.SaveToString(deployment);
+            string deploymentAsString = Yaml.SaveToString(deployment);           
         }
 
 
+        [Fact]
+        public void SaveKustomize()
+        {
+            Kustomize k = new Kustomize()
+            {
+                Resources = new List<string>
+                {
+                    "a.yaml",
+                    "b.yaml",
+                    "c.yaml"
+                }
+            };
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var yaml = serializer.Serialize(k);
+
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)  // see height_in_inches in sample yml 
+                .Build();
+
+            //yml contains a string containing your YAML
+            Kustomize k2 = deserializer.Deserialize<Kustomize>(yaml);
+
+        }
       
 
         private V1Deployment CreateDeployment(string appName, string image)

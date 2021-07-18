@@ -1,4 +1,5 @@
-﻿using AdHocTestingEnvironments.Model.Kubernetes;
+﻿using AdHocTestingEnvironments.Model.GitService;
+using AdHocTestingEnvironments.Model.Kubernetes;
 using AdHocTestingEnvironments.Services.Interfaces;
 using k8s;
 using k8s.Models;
@@ -10,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace AdHocTestingEnvironments.Services.Implementations
 {
@@ -91,10 +94,89 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
                     _logger.LogInformation("Created Kubernetes Object");
                 }
+
+                await AddToKustomizeFile(repo, instanceInfo);
+
                 CommitChanges(repo);
                 PushChanges(repo);
             }           
             return "Ok";
+        }
+
+
+        public async Task<string> StopEnvironment(string appName)
+        {
+            string localPath = GetPath();
+            using (Repository repo = new Repository(localPath))
+            {
+                IList<string> fileList = GetPathList(appName);
+                foreach (var file in fileList)
+                {
+                    File.Delete(file);
+                    Commands.Stage(repo, file);
+                }
+
+                await RemoveFromKustomzeFile(repo, appName);
+
+                CommitChanges(repo);
+                PushChanges(repo);
+            }
+            return "Ok";
+        }
+
+        private async Task AddToKustomizeFile(Repository repo, CreateEnvironmentInstanceData instanceInfo)
+        {
+            Kustomize kustomize = GetKustomize();
+            kustomize.Resources.Add($"{instanceInfo.Name}-configmap.yaml");
+            kustomize.Resources.Add($"{instanceInfo.Name}-deployment.yaml");
+            kustomize.Resources.Add($"{instanceInfo.Name}-service.yaml");
+
+            var serializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var yaml = serializer.Serialize(kustomize);
+            var path = GetKustomizeFilePath();
+
+            using (StreamWriter outputFile = new StreamWriter(path, false))
+            {
+                await outputFile.WriteAsync(yaml);
+            }
+            Commands.Stage(repo, path);
+        }
+
+        private async Task RemoveFromKustomzeFile(Repository repo, string appName)
+        {
+            Kustomize kustomize = GetKustomize();
+            var path = GetKustomizeFilePath();
+
+            kustomize.Resources = kustomize.Resources.Where(x => !x.StartsWith($"{appName}-")).ToList();
+
+            var serializer = new SerializerBuilder()
+              .WithNamingConvention(CamelCaseNamingConvention.Instance)
+              .Build();
+            var yaml = serializer.Serialize(kustomize);
+
+            using (StreamWriter outputFile = new StreamWriter(path, false))
+            {
+                await outputFile.WriteAsync(yaml);
+            }
+            Commands.Stage(repo, path);
+        }
+
+        private Kustomize GetKustomize()
+        {
+            string kustizefilePath = GetKustomizeFilePath();
+            if (File.Exists(kustizefilePath))
+            {
+                var yaml =  File.ReadAllText(kustizefilePath);
+                var deserializer = new DeserializerBuilder()
+                      .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                      .Build();
+
+                return deserializer.Deserialize<Kustomize>(yaml);
+            }
+            return new Kustomize() { Resources = new List<string>() };
         }
 
         private void PushChanges(Repository repo)
@@ -131,7 +213,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         private async Task<string> SaveToFile(string content, string filename)
         {
-            string directory = $"{GetPath()}{Path.DirectorySeparatorChar}kustomize{Path.DirectorySeparatorChar}";
+            string directory = GetKustomizeDirecotryPath();
             Directory.CreateDirectory(directory);
 
             string path = $"{directory}{filename}";
@@ -142,14 +224,32 @@ namespace AdHocTestingEnvironments.Services.Implementations
             return path;
         }
 
-        public Task<string> StopEnvironment(string appName)
+        private IList<string> GetPathList(string appName)
         {
-            throw new NotImplementedException();
+            string path = GetKustomizeDirecotryPath();
+            return new List<string>
+            {
+                $"{path}{appName}-configmap.yaml",
+                $"{path}{appName}-deployment.yaml",
+                $"{path}{appName}-service.yaml",
+            };
         }
 
         private string GetPath()
         {
             return $"{Path.GetTempPath()}git";
+        }
+
+        private string GetKustomizeDirecotryPath()
+        {
+            string directory = $"{GetPath()}{Path.DirectorySeparatorChar}kustomize{Path.DirectorySeparatorChar}";
+            return directory;
+        }
+
+        private string GetKustomizeFilePath()
+        {
+            string directory = GetKustomizeDirecotryPath();
+            return $"{directory}kustomize.yaml";
         }
 
         private void ForceDeleteDirectory(string path)

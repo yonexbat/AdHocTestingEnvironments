@@ -30,6 +30,15 @@ namespace AdHocTestingEnvironmentsTests
         }
 
 
+        [Fact]
+        public async Task TestStopEnv()
+        {
+            IGitClientService service = CreateClient();
+            await service.CheckOut();
+
+            await service.StopEnvironment("testwzei");
+        }
+
         private IGitClientService CreateClient()
         {
             IConfiguration configuration = GetConfiguration();

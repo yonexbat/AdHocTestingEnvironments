@@ -7,6 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdHocTestingEnvironments", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdHocTestingEnvironmentsTests", "AdHocTestingEnvironmentsTests\AdHocTestingEnvironmentsTests.csproj", "{F7A69AB7-A8F2-4AD1-A748-32CC22325002}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "kustomize", "kustomize", "{D8140A7F-F654-43CB-8187-B35AA42BA00E}"
+	ProjectSection(SolutionItems) = preProject
+		kustomize\certificate.pfx = kustomize\certificate.pfx
+		kustomize\deployment.yaml = kustomize\deployment.yaml
+		kustomize\kustomization.yaml = kustomize\kustomization.yaml
+		kustomize\service.yaml = kustomize\service.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
