@@ -56,9 +56,17 @@ namespace AdHocTestingEnvironments.Services.Implementations
             }
         }
 
-        public Task<IList<EnvironmentInstance>> GetEnvironments()
+        public async Task<IList<EnvironmentInstance>> GetEnvironments()
         {
-            throw new NotImplementedException();
+            Kustomize kustomize = GetKustomize();
+            var services = kustomize
+                .Resources
+                .Where(x => x.EndsWith("-service.yaml"))
+                .Select(x => new EnvironmentInstance() {
+                    Name = x.Substring(0, x.Length - 13)
+                }).ToList();
+
+            return services;
         }
 
         public async Task<string> StartEnvironment(CreateEnvironmentInstanceData instanceInfo)
@@ -75,14 +83,20 @@ namespace AdHocTestingEnvironments.Services.Implementations
                     switch (kubernetesObject)
                     {
                         case V1ConfigMap configMap:
+                            configMap.Kind = "Configmap";
+                            configMap.ApiVersion = "v1";
                             string yamlContent = Yaml.SaveToString(configMap);
                             path = await SaveToFile(yamlContent, $"{instanceInfo.Name}-configmap.yaml");
                             break;
                         case V1Deployment deployment:
+                            deployment.Kind = "Deployment";
+                            deployment.ApiVersion = "v1";
                             yamlContent = Yaml.SaveToString(deployment);
                             path = await SaveToFile(yamlContent, $"{instanceInfo.Name}-deployment.yaml");
                             break;
                         case V1Service service:
+                            service.Kind = "Service";
+                            service.ApiVersion = "v1";
                             yamlContent = Yaml.SaveToString(service);
                             path = await SaveToFile(yamlContent, $"{instanceInfo.Name}-service.yaml");
                             break;

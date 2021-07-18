@@ -1,4 +1,5 @@
-﻿using AdHocTestingEnvironments.Services.Implementations;
+﻿using AdHocTestingEnvironments.Model.Kubernetes;
+using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,15 @@ namespace AdHocTestingEnvironmentsTests
             await service.CheckOut();
 
             await service.StopEnvironment("testwzei");
+        }
+
+        [Fact]
+        public async Task GetList()
+        {
+            IGitClientService service = CreateClient();
+            await service.CheckOut();
+
+            IList<EnvironmentInstance> res = await service.GetEnvironments();
         }
 
         private IGitClientService CreateClient()
