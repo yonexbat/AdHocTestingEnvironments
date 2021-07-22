@@ -48,10 +48,10 @@ namespace AdHocTestingEnvironments.Services.Implementations
                         V1ConfigMap configMap => await client.CreateNamespacedConfigMapAsync(configMap, _namespace),
                         V1Deployment deployment => await client.CreateNamespacedDeploymentAsync(deployment, _namespace),
                         V1Service service => await client.CreateNamespacedServiceAsync(service, _namespace),
-                        _ => throw new ArgumentException(),
+                        _ => throw new ArgumentException($"Type {kubernetesObject.GetType().Name} not suported."),
                     };
-                    string jsonString = JsonSerializer.Serialize(res);
-                    _logger.LogInformation("Created Kubernetes Object: {0}", jsonString);
+                    string jsonStringResult = JsonSerializer.Serialize(res);
+                    _logger.LogInformation("Created Kubernetes Object: {0}", jsonStringResult);
                 }               
             }
             return "Ok";
