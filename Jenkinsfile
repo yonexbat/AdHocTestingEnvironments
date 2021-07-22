@@ -41,9 +41,7 @@ pipeline {
             steps {
                 dotnetPublish(projectPath:'AdHocTestingEnvironments')
             }
-        }
-
-        /*
+        }        
         stage('Docker build') {
              steps{
                 dockerBuild(
@@ -53,7 +51,7 @@ pipeline {
                     path: '.'
                 )
             }
-        }*/
+        }
 
         /*
         stage('Set dotnet sdk') {
