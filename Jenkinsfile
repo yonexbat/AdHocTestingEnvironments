@@ -25,6 +25,16 @@ pipeline {
             checkout scm
           }
         }
+        stage('Docker build') {
+             steps{
+                dockerBuild(
+                    projectName: "adhoctestingenvironments/${projectName}",
+                    tag: projectVersion,
+                    buildOptions: ['pull','no-cache','rm=true'],
+                    path: '.'
+                )
+            }
+        }
 
         /*
         stage('Set dotnet sdk') {
