@@ -11,13 +11,11 @@ pipeline {
     }
     environment{
         projectVersion = getDotnetVersion(versionField: 'VersionPrefix')
-        projectName = "dfb-backend"
-        solutionName ="Dfb.Backend"
+        projectName = "adhoctestingenvironments"
     }
     tools {
         jdk 'jdk-8u131'
-    }
-    
+    }    
     stages {
         stage('Prepare') {
           steps {
@@ -25,10 +23,24 @@ pipeline {
             checkout scm
           }
         }
+        stage('Set dotnet sdk') {
+            steps {
+                setDotnetSdk(
+                    version: '5.0'
+                )
+            }
+        }
+        stage('Build') {
+            steps {
+                dotnetBuild(
+                    project: './AdHocTestingEnvironments.sln'
+                )
+            }
+        }
         stage('Docker build') {
              steps{
                 dockerBuild(
-                    projectName: "adhoctestingenvironments/${projectName}",
+                    projectName: "${projectName}",
                     tag: projectVersion,
                     buildOptions: ['pull','no-cache','rm=true'],
                     path: '.'
