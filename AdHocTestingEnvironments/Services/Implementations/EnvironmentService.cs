@@ -40,12 +40,13 @@ namespace AdHocTestingEnvironments.Services.Implementations
             return await _kubernetesClient.GetEnvironments();
         }
 
-        public async Task<IList<Application>> ListEnvironmetns()
+        public Task<IList<Application>> ListEnvironmetns()
         {
-            return _environmentConfigOptions.Environments.Select(x => new Application()
+            IList<Application> res = _environmentConfigOptions.Environments.Select(x => new Application()
             {
                 Name = x.Name,
             }).ToList();
+            return Task.FromResult(res);
         }
 
         public async Task<string> StartEnvironmentInstance(StartRequest startRequest)

@@ -81,9 +81,9 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
                     string path = kubernetesObject switch 
                     {
-                        V1ConfigMap configMap => await SaveKubernetesObjToFile(configMap, "Configmap", instanceInfo.Name),
-                        V1Deployment deployment => await SaveKubernetesObjToFile(deployment, "Deployment", instanceInfo.Name),
-                        V1Service service => await SaveKubernetesObjToFile(service, "Service", instanceInfo.Name),
+                        V1ConfigMap configMap => await SaveKubernetesObjToFile(configMap, "ConfigMap", "v1", instanceInfo.Name),
+                        V1Deployment deployment => await SaveKubernetesObjToFile(deployment, "Deployment", "apps/v1", instanceInfo.Name),
+                        V1Service service => await SaveKubernetesObjToFile(service, "Service", "v1", instanceInfo.Name),
                         _ => throw new ArgumentException($"Type {kubernetesObject.GetType().Name} not suported."),
                     };
 
@@ -207,12 +207,11 @@ namespace AdHocTestingEnvironments.Services.Implementations
             return new Signature("adhoctestingenvironments", "hello@adhoctestingenvironments.com", DateTimeOffset.Now);
         }
 
-        private async Task<string> SaveKubernetesObjToFile(IKubernetesObject kubernetesObject, string kind, string instanceName)
+        private async Task<string> SaveKubernetesObjToFile<T>(T kubernetesObject, string kind, string apiVersion, string instanceName) where T : IKubernetesObject
         {
             kubernetesObject.Kind = kind;
-            kubernetesObject.ApiVersion = "v1";
-            Object kubernetesObjAsPurObject = (Object) kubernetesObject;
-            string yamlContent = Yaml.SaveToString(kubernetesObjAsPurObject);
+            kubernetesObject.ApiVersion = apiVersion;
+            string yamlContent = Yaml.SaveToString(kubernetesObject);
             return await SaveToFile(yamlContent, $"{instanceName}-{kind.ToLower()}.yaml");
         }
 
@@ -254,7 +253,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
         private string GetKustomizeFilePath()
         {
             string directory = GetKustomizeDirecotryPath();
-            return $"{directory}kustomize.yaml";
+            return $"{directory}kustomization.yaml";
         }
 
         private void ForceDeleteDirectory(string path)
