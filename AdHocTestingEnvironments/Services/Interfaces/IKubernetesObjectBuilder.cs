@@ -9,6 +9,6 @@ namespace AdHocTestingEnvironments.Services.Interfaces
 {
     public interface IKubernetesObjectBuilder
     {
-        IList<IKubernetesObject> CreateObjectDefenitions(CreateEnvironmentInstanceData instanceInfo);
+        IList<IKubernetesObject> CreateObjectDefinitions(CreateEnvironmentInstanceData instanceInfo);
     }
 }

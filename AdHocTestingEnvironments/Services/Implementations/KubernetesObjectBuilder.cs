@@ -18,7 +18,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         }
 
-        public IList<IKubernetesObject> CreateObjectDefenitions(CreateEnvironmentInstanceData instanceInfo)
+        public IList<IKubernetesObject> CreateObjectDefinitions(CreateEnvironmentInstanceData instanceInfo)
         {            
             // ConfigMap
             V1ConfigMap configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);           

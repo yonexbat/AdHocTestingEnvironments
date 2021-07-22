@@ -40,7 +40,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
             using (IKubernetes client = CreateClient())
             {
 
-                IList<IKubernetesObject> objects = _kubernetesObjectBuilder.CreateObjectDefenitions(instanceInfo);
+                IList<IKubernetesObject> objects = _kubernetesObjectBuilder.CreateObjectDefinitions(instanceInfo);
                 foreach(IKubernetesObject kubernetesObject in objects)
                 {
                     Object res = kubernetesObject switch

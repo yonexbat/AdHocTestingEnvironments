@@ -39,9 +39,9 @@ namespace AdHocTestingEnvironments.Services.Implementations
             _logger = logger;
         }
 
-        public async Task CheckOut()
+        public Task CheckOut()
         {
-            string localPath = GetPath();
+            string localPath = GetPathToGitRepository();
             _logger.LogInformation("Local git path: {0}, Git Repo: {1}", localPath, _gitUrl);
             
             try
@@ -53,56 +53,40 @@ namespace AdHocTestingEnvironments.Services.Implementations
             catch(Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-            }
+            }            
+            return Task.CompletedTask;
         }
 
-        public async Task<IList<EnvironmentInstance>> GetEnvironments()
+        public Task<IList<EnvironmentInstance>> GetEnvironments()
         {
             Kustomize kustomize = GetKustomize();
-            var services = kustomize
+            IList<EnvironmentInstance> services = kustomize
                 .Resources
                 .Where(x => x.EndsWith("-service.yaml"))
                 .Select(x => new EnvironmentInstance() {
                     Name = x.Substring(0, x.Length - 13)
                 }).ToList();
 
-            return services;
+            return Task.FromResult(services);
         }
 
         public async Task<string> StartEnvironment(CreateEnvironmentInstanceData instanceInfo)
-        {
-            
-            IList<IKubernetesObject> objects = _kubernetesObjectBuilder.CreateObjectDefenitions(instanceInfo);
-            string localPath = GetPath();
+        {            
+            IList<IKubernetesObject> objects = _kubernetesObjectBuilder.CreateObjectDefinitions(instanceInfo);
+            string localPath = GetPathToGitRepository();
             using (Repository repo = new Repository(localPath))
             {
                 foreach (Object kubernetesObject in objects)
                 {
 
-                    string path;
-                    switch (kubernetesObject)
+                    string path = kubernetesObject switch 
                     {
-                        case V1ConfigMap configMap:
-                            configMap.Kind = "Configmap";
-                            configMap.ApiVersion = "v1";
-                            string yamlContent = Yaml.SaveToString(configMap);
-                            path = await SaveToFile(yamlContent, $"{instanceInfo.Name}-configmap.yaml");
-                            break;
-                        case V1Deployment deployment:
-                            deployment.Kind = "Deployment";
-                            deployment.ApiVersion = "v1";
-                            yamlContent = Yaml.SaveToString(deployment);
-                            path = await SaveToFile(yamlContent, $"{instanceInfo.Name}-deployment.yaml");
-                            break;
-                        case V1Service service:
-                            service.Kind = "Service";
-                            service.ApiVersion = "v1";
-                            yamlContent = Yaml.SaveToString(service);
-                            path = await SaveToFile(yamlContent, $"{instanceInfo.Name}-service.yaml");
-                            break;
-                        default:
-                            throw new ArgumentException("not supported");
-                    }
+                        V1ConfigMap configMap => await SaveKubernetesObjToFile(configMap, "Configmap", instanceInfo.Name),
+                        V1Deployment deployment => await SaveKubernetesObjToFile(deployment, "Deployment", instanceInfo.Name),
+                        V1Service service => await SaveKubernetesObjToFile(service, "Service", instanceInfo.Name),
+                        _ => throw new ArgumentException($"Type {kubernetesObject.GetType().Name} not suported."),
+                    };
+
 
                     Commands.Stage(repo, path);
 
@@ -120,7 +104,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         public async Task<string> StopEnvironment(string appName)
         {
-            string localPath = GetPath();
+            string localPath = GetPathToGitRepository();
             using (Repository repo = new Repository(localPath))
             {
                 IList<string> fileList = GetPathList(appName);
@@ -204,10 +188,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 },
             };
 
-            Signature signature = new Signature("adhoctestingenvironments", "hello@adhoctestingenvironments.com", DateTimeOffset.Now);
-            {
-
-            };
+            Signature signature = CreatGitSignature();
 
             // options.Credentials = credentials;
             var pushRefSpec = $"refs/heads/{_branch}";
@@ -217,12 +198,22 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         private void CommitChanges(Repository repo)
         {
-            Signature signature = new Signature("adhoctestingenvironments", "hello@adhoctestingenvironments.com", DateTimeOffset.Now);
-            {
+            Signature signature = CreatGitSignature();
+            repo.Commit("commit by adhoctestingenvironments", signature, signature);
+        }
 
-            };
+        private Signature CreatGitSignature()
+        {
+            return new Signature("adhoctestingenvironments", "hello@adhoctestingenvironments.com", DateTimeOffset.Now);
+        }
 
-            repo.Commit("egotistic commit", signature, signature);
+        private async Task<string> SaveKubernetesObjToFile(IKubernetesObject kubernetesObject, string kind, string instanceName)
+        {
+            kubernetesObject.Kind = kind;
+            kubernetesObject.ApiVersion = "v1";
+            Object kubernetesObjAsPurObject = (Object) kubernetesObject;
+            string yamlContent = Yaml.SaveToString(kubernetesObjAsPurObject);
+            return await SaveToFile(yamlContent, $"{instanceName}-{kind.ToLower()}.yaml");
         }
 
         private async Task<string> SaveToFile(string content, string filename)
@@ -249,14 +240,14 @@ namespace AdHocTestingEnvironments.Services.Implementations
             };
         }
 
-        private string GetPath()
+        private string GetPathToGitRepository()
         {
             return $"{Path.GetTempPath()}git";
         }
 
         private string GetKustomizeDirecotryPath()
         {
-            string directory = $"{GetPath()}{Path.DirectorySeparatorChar}kustomize{Path.DirectorySeparatorChar}";
+            string directory = $"{GetPathToGitRepository()}{Path.DirectorySeparatorChar}kustomize{Path.DirectorySeparatorChar}";
             return directory;
         }
 
@@ -270,7 +261,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
         {
             if (Directory.Exists(path))
             {
-                _logger.LogInformation("Directory already exist. Will delete it and recreate it");
+                _logger.LogInformation("Directory already exist. Will delete it and recreate it later on.");
                 var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
 
                 foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
@@ -279,6 +270,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 }
 
                 directory.Delete(true);
+                _logger.LogInformation("Directory deleted successfully");
             } 
             else
             {
