@@ -48,7 +48,7 @@ pipeline {
                     projectName: "${projectName}",
                     tag: projectVersion,
                     buildOptions: ['pull','no-cache','rm=true'],
-                    path: '.'
+                    path: './AdHocTestingEnvironments'
                 )
             }
         }
