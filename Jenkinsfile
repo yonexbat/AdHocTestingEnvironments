@@ -52,7 +52,15 @@ pipeline {
                 )
             }
         }
-
+        stage('Docker push') {
+            steps{
+                dockerPush(
+                    projectName: "${projectName}",
+                    tag: projectVersion,
+                    credentialsId: "05e790a3-2dfd-4a30-b846-513dfcfa152f"
+                )
+            }
+        }
         /*
         stage('Set dotnet sdk') {
             steps {
