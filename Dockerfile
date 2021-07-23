@@ -1,6 +1,6 @@
 FROM docker.tools.pnet.ch/base/dotnet:5.0-alpine
 
-COPY publish/. /app
+COPY AdHocTestingEnvironments/publish/. /app
 
 RUN chmod +x /app/AdHocTestingEnvironments
 
