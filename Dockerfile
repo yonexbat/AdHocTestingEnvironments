@@ -1,4 +1,4 @@
-FROM docker.tools.pnet.ch/base/dotnet:5.0-alpine
+FROM docker.tools.post.ch/base/dotnet-self:1.0.1-2
 
 COPY AdHocTestingEnvironments/publish/. /app
 
@@ -8,4 +8,4 @@ WORKDIR /app
 
 USER baseuser
 
-#ENTRYPOINT ["./AdHocTestingEnvironments"]
+ENTRYPOINT ["./AdHocTestingEnvironments"]
