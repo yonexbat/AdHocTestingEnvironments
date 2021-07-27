@@ -1,6 +1,7 @@
 ﻿using AdHocTestingEnvironments.Model.Kubernetes;
 using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -34,8 +35,16 @@ namespace AdHocTestingEnvironmentsTests
                 .Returns(instanceListTask)
                 .Callback(() => deleteCount++);
 
+            var inMemorySettings = new Dictionary<string, string> {
+                {"EnironmentKillerServiceEnabled", "false"},               
+            };
 
-            var service =  new EnvironmentKillerService(kubernetesClientMock.Object, currentTimeServiceMock.Object, new Mock<ILogger<EnvironmentKillerService>>().Object);
+            IConfiguration mockConfiguration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+
+
+            var service =  new EnvironmentKillerService(mockConfiguration, kubernetesClientMock.Object, currentTimeServiceMock.Object, new Mock<ILogger<EnvironmentKillerService>>().Object);
 
             await service.KillDueEnvironments();
             Assert.Equal(1, deleteCount);

@@ -1,22 +1,11 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+FROM docker.tools.post.ch/base/dotnet-self:1.0.1-2
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+COPY AdHocTestingEnvironments/publish/. /app
+
+RUN chmod +x /app/AdHocTestingEnvironments
+
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
-WORKDIR /src
-COPY ["AdHocTestingEnvironments/AdHocTestingEnvironments.csproj", "AdHocTestingEnvironments/"]
-RUN dotnet restore "AdHocTestingEnvironments/AdHocTestingEnvironments.csproj"
-COPY . .
-WORKDIR "/src/AdHocTestingEnvironments"
-RUN dotnet build "AdHocTestingEnvironments.csproj" -c Release -o /app/build
+USER baseuser
 
-FROM build AS publish
-RUN dotnet publish "AdHocTestingEnvironments.csproj" -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "AdHocTestingEnvironments.dll"]
+ENTRYPOINT ["./AdHocTestingEnvironments"]

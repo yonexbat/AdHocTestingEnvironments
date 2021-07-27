@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <Company>Post CH AG</Company>
+    <Authors />
+    <Product>AdHoc Testing environments</Product>
+    <RepositoryUrl />
+  </PropertyGroup>
+</Project>
