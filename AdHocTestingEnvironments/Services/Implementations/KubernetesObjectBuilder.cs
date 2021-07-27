@@ -19,17 +19,25 @@ namespace AdHocTestingEnvironments.Services.Implementations
         }
 
         public IList<IKubernetesObject> CreateObjectDefinitions(CreateEnvironmentInstanceData instanceInfo)
-        {            
+        {
+            var kubernetesObjects = new List<IKubernetesObject>();
+
             // ConfigMap
-            V1ConfigMap configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);           
+            if (instanceInfo.HasDatabase)
+            {
+                V1ConfigMap configMap = CreateConfigMap(instanceInfo.Name, instanceInfo.InitSqlScript);
+                kubernetesObjects.Add(configMap);
+            }
 
             // Deployment
-            V1Deployment deployment = CreateDeployment(instanceInfo.Name, instanceInfo.Image);
+            V1Deployment deployment = CreateDeployment(instanceInfo);
+            kubernetesObjects.Add(deployment);
            
             // Service
             V1Service service = CreateService(instanceInfo.Name, instanceInfo.NumHoursToRun);
+            kubernetesObjects.Add(service);
 
-            return new List<IKubernetesObject>() { configMap, deployment, service };
+            return kubernetesObjects;
         }
 
         private V1Service CreateService(string appName, int numHoursToRun)
@@ -53,21 +61,25 @@ namespace AdHocTestingEnvironments.Services.Implementations
             return service;
         }
 
-        private V1Deployment CreateDeployment(string appName, string image)
+        private V1Deployment CreateDeployment(CreateEnvironmentInstanceData instanceInfo)
         {
             // Deployment
-            var deployment = CreateDeploymentHeader(appName);
+            var deployment = CreateDeploymentHeader(instanceInfo.Name);
 
-            // Deployment Volume
-            deployment.Spec.Template.Spec.Volumes = new List<V1Volume>();
-            var volume = CreateVolumeForPlsqlContainer(appName);
-            deployment.Spec.Template.Spec.Volumes.Add(volume);
-
-            var appContainer = CreateAppContainer(appName, image);
+            var appContainer = CreateAppContainer(instanceInfo.Name, instanceInfo.Image);
             deployment.Spec.Template.Spec.Containers.Add(appContainer);
 
-            var psqlContainer = CreatePsqlContainer(appName);
-            deployment.Spec.Template.Spec.Containers.Add(psqlContainer);
+            if (instanceInfo.HasDatabase)
+            {
+
+                // Deployment Volume
+                deployment.Spec.Template.Spec.Volumes = new List<V1Volume>();
+                var volume = CreateVolumeForPlsqlContainer(instanceInfo.Name);
+                deployment.Spec.Template.Spec.Volumes.Add(volume);
+
+                var psqlContainer = CreatePsqlContainer(instanceInfo.Name);
+                deployment.Spec.Template.Spec.Containers.Add(psqlContainer);
+            }
 
             return deployment;
         }

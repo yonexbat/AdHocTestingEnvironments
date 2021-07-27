@@ -68,6 +68,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 InitSqlScript = config.InitSql,
                 Name = instanceName,
                 NumHoursToRun = startRequest.NumHoursToRun,
+                HasDatabase = config.HasDatabase,
             });
 
             _routingService.AddCustomItem(new EndpointEntry()
@@ -81,7 +82,6 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         public async Task<string> StopEnvironmentInstance(string instanceName)
         {
-            _routingService.DeleteCustomItem(instanceName);
             await _kubernetesClient.StopEnvironment(instanceName);
             return "Ok";
         }

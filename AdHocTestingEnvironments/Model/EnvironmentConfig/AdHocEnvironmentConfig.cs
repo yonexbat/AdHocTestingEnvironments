@@ -12,5 +12,7 @@ namespace AdHocTestingEnvironments.Model
         public string ContainerImage { get; set; }
         
         public string InitSql { get; set; }
+
+        public bool HasDatabase { get; set; }
     }
 }
