@@ -1,4 +1,5 @@
-﻿using AdHocTestingEnvironments.Services.Interfaces;
+﻿using AdHocTestingEnvironments.Model.Kubernetes;
+using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,14 +12,14 @@ namespace AdHocTestingEnvironments.Services.Implementations
     {
 
         private readonly ILogger _logger;
-        private readonly IKubernetesClientService _kubernetesClientService;
+        private readonly IEnvironmentService _environmentService;
         private readonly ICurrentTimeService _currentTimeService;
         private readonly bool _enabled;
 
-        public EnvironmentKillerService(IConfiguration configuration, IKubernetesClientService kubernetesClientService, ICurrentTimeService currentTimeService, ILogger<EnvironmentKillerService> logger)
+        public EnvironmentKillerService(IConfiguration configuration, IEnvironmentService environmentService, ICurrentTimeService currentTimeService, ILogger<EnvironmentKillerService> logger)
         {
             _logger = logger;
-            _kubernetesClientService = kubernetesClientService;
+            _environmentService = environmentService;
             _currentTimeService = currentTimeService;
             _enabled = configuration.GetValue<bool>("EnironmentKillerServiceEnabled");
         }
@@ -32,16 +33,16 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 return;
             }
 
-            var list = await _kubernetesClientService.GetEnvironments();
+            var list = await _environmentService.ListEnvironmentInstances();
             DateTimeOffset currentTime = _currentTimeService.GetCurrentUtcTime();
             var envsToDelete = list
                 .Where(x => x.StartTime.HasValue)
                 .Where(x => x.StartTime + new TimeSpan(x.NumHoursToRun ?? 1, 0, 0) < currentTime);
 
-            foreach (var instance in envsToDelete)
+            foreach (EnvironmentInstance instance in envsToDelete)
             {
                 _logger.LogInformation($"Killing environment {instance.Name}.");
-                await _kubernetesClientService.StopEnvironment(instance.Name);
+                await _environmentService.StopEnvironmentInstance(instance.Name);
             }
         }
     }

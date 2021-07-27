@@ -110,8 +110,11 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 IList<string> fileList = GetPathList(appName);
                 foreach (var file in fileList)
                 {
-                    File.Delete(file);
-                    Commands.Stage(repo, file);
+                    if(File.Exists(file))
+                    {
+                        File.Delete(file);
+                        Commands.Stage(repo, file);
+                    }                    
                 }
 
                 await RemoveFromKustomzeFile(repo, appName);

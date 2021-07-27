@@ -62,14 +62,38 @@ namespace AdHocTestingEnvironments.Services.Implementations
             _logger.LogInformation("Stopping environment: {0}", appName);
             using (IKubernetes client = CreateClient())
             {
-                await client.DeleteNamespacedServiceAsync(appName, _namespace);
-                _logger.LogInformation("Stopped service {0}", appName);
+                var serviceList = await client.ListNamespacedServiceAsync(_namespace);
+                if(serviceList.Items?.Any(x => x.Metadata?.Name?.StartsWith(appName) == true) == true)
+                {
+                    await client.DeleteNamespacedServiceAsync(appName, _namespace);
+                    _logger.LogInformation("Stopped service {0}", appName);
+                } 
+                else
+                {
+                    _logger.LogWarning("Service {0} not found", appName);
+                }
+                           
+                V1DeploymentList deploymentList = await client.ListNamespacedDeploymentAsync(_namespace);
+                if(deploymentList.Items?.Any(x => x.Metadata?.Name?.StartsWith(appName) == true) == true)
+                {
+                    await client.DeleteNamespacedDeploymentAsync(appName, _namespace);
+                    _logger.LogInformation("Stopped deployment {0}. Pods take a while to shut down", appName);                    
+                } 
+                else
+                {
+                    _logger.LogWarning("Deployment {0} not found", appName);
+                }
 
-                await client.DeleteNamespacedDeploymentAsync(appName, _namespace);
-                _logger.LogInformation("Stopped deployment {0}. Pods take a while to shut down", appName);
-
-                await client.DeleteNamespacedConfigMapAsync(appName, _namespace);
-                _logger.LogInformation("Deleted configmap: {0}", appName);
+                V1ConfigMapList configMapList =  await client.ListNamespacedConfigMapAsync(_namespace);
+                if(configMapList.Items?.Any(x => x.Metadata?.Name?.StartsWith(appName) == true) == true)
+                {
+                    await client.DeleteNamespacedConfigMapAsync(appName, _namespace);
+                    _logger.LogInformation("Deleted configmap: {0}", appName);
+                }   
+                else
+                {
+                    _logger.LogInformation("ConfigMap {0} not found", appName);
+                }
             }
 
             return "Ok";
