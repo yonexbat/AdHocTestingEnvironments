@@ -12,11 +12,11 @@ namespace AdHocTestingEnvironments.Services.Implementations
     {
 
         private readonly ILogger _logger;
-        private readonly IEnvironmentService _environmentService;
+        private readonly IEnvironmentInstanceService _environmentService;
         private readonly ICurrentTimeService _currentTimeService;
         private readonly bool _enabled;
 
-        public EnvironmentKillerService(IConfiguration configuration, IEnvironmentService environmentService, ICurrentTimeService currentTimeService, ILogger<EnvironmentKillerService> logger)
+        public EnvironmentKillerService(IConfiguration configuration, IEnvironmentInstanceService environmentService, ICurrentTimeService currentTimeService, ILogger<EnvironmentKillerService> logger)
         {
             _logger = logger;
             _environmentService = environmentService;

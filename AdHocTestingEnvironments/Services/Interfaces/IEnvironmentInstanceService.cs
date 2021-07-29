@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AdHocTestingEnvironments.Services.Interfaces
 {
-    public interface IEnvironmentService
+    public interface IEnvironmentInstanceService
     {
         Task<string> StartEnvironmentInstance(StartRequest dto);
 

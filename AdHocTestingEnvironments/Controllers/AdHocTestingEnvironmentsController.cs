@@ -17,9 +17,9 @@ namespace AdHocTestingEnvironments.Controllers
     public class AdHocTestingEnvironmentsController : ControllerBase
     {
 
-        private readonly IEnvironmentService _environmentService;
+        private readonly IEnvironmentInstanceService _environmentService;
 
-        public AdHocTestingEnvironmentsController(IEnvironmentService environmentService)
+        public AdHocTestingEnvironmentsController(IEnvironmentInstanceService environmentService)
         {
             _environmentService = environmentService;
         }

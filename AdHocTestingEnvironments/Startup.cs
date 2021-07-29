@@ -37,7 +37,7 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<ICurrentTimeService, CurrentTimeService>();
             services.AddSingleton<IKubernetesObjectBuilder, KubernetesObjectBuilder>();
             services.AddSingleton<IGitClientService, GitClientService>();
-            services.AddScoped<IEnvironmentService, EnvironmentService>();
+            services.AddScoped<IEnvironmentInstanceService, EnvironmentInstanceService>();
             services.AddScoped<IKubernetesClientService, KubernetesClientService>();
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
 

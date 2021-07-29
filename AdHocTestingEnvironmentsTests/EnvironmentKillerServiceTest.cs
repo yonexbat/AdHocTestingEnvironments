@@ -21,7 +21,7 @@ namespace AdHocTestingEnvironmentsTests
             var currentTimeServiceMock = new Mock<ICurrentTimeService>();
             currentTimeServiceMock.Setup(cts => cts.GetCurrentUtcTime()).Returns(new DateTimeOffset(2021, 7, 17, 1, 0, 0, TimeSpan.Zero));
 
-            var kubernetesClientMock = new Mock<IEnvironmentService>();
+            var kubernetesClientMock = new Mock<IEnvironmentInstanceService>();
             var instanceListTask = Task.FromResult<IList<EnvironmentInstance>>(new List<EnvironmentInstance>()
                 {
                     new EnvironmentInstance() { Name = "One", Status = "Running", StartTime = new DateTime(2021, 7, 17, 1, 0, 0), NumHoursToRun = 1 },

@@ -14,7 +14,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 {
 
 
-    public class EnvironmentService : IEnvironmentService
+    public class EnvironmentInstanceService : IEnvironmentInstanceService
     {
 
         private readonly EnvironmentConfigOptions _environmentConfigOptions;
@@ -23,11 +23,11 @@ namespace AdHocTestingEnvironments.Services.Implementations
         private readonly ILogger _logger;
         private Random random = new Random();
 
-        public EnvironmentService(
+        public EnvironmentInstanceService(
             IOptions<EnvironmentConfigOptions> options,
             IKubernetesClientService kubernetesClient,
             IEndpointResolverService routingService,
-            ILogger<EnvironmentService> logger)
+            ILogger<EnvironmentInstanceService> logger)
         {
             _environmentConfigOptions = options.Value;
             _kubernetesClient = kubernetesClient;
@@ -51,7 +51,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         public async Task<string> StartEnvironmentInstance(StartRequest startRequest)
         {
-
+            _logger.LogInformation("Starting environment: {0}", startRequest?.ApplicationName);
             var environments = await ListEnvironmentInstances();
             if (environments.Count > 3)
             {
@@ -82,6 +82,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         public async Task<string> StopEnvironmentInstance(string instanceName)
         {
+            _logger.LogInformation("Stopping environment: {0}", instanceName);
             await _kubernetesClient.StopEnvironment(instanceName);
             return "Ok";
         }

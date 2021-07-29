@@ -22,7 +22,7 @@ namespace AdHocTestingEnvironmentsTests
         [Fact]
         public async Task ListEnvironmentsOk()
         {
-            IEnvironmentService service = CreateService();
+            IEnvironmentInstanceService service = CreateService();
             var res = await service.ListEnvironmetns();
             Assert.True(res.Any());
         }
@@ -30,7 +30,7 @@ namespace AdHocTestingEnvironmentsTests
         [Fact]
         public async Task ListEnvironmentInstancesOk()
         {
-            IEnvironmentService service = CreateService();
+            IEnvironmentInstanceService service = CreateService();
             var res = await service.ListEnvironmentInstances();
             Assert.True(res.Any());
         }
@@ -38,7 +38,7 @@ namespace AdHocTestingEnvironmentsTests
         [Fact]
         public async Task StartEnvironmentInstanceOk()
         {
-            IEnvironmentService service = CreateService();
+            IEnvironmentInstanceService service = CreateService();
             var startRquest = new StartRequest()
             {
                 ApplicationName  = "sampleapp",
@@ -53,7 +53,7 @@ namespace AdHocTestingEnvironmentsTests
         [Fact]
         public async Task StopEnvironmentInstanceOk()
         {
-            IEnvironmentService service = CreateService();
+            IEnvironmentInstanceService service = CreateService();
             var startRquest = new StartRequest()
             {
                 ApplicationName = "sampleapp",
@@ -65,7 +65,7 @@ namespace AdHocTestingEnvironmentsTests
         }
 
 
-        private IEnvironmentService CreateService()
+        private IEnvironmentInstanceService CreateService()
         {
             EnvironmentConfigOptions options = new EnvironmentConfigOptions()
             {
@@ -93,9 +93,9 @@ namespace AdHocTestingEnvironmentsTests
 
             var routingServiceMock = new Mock<IEndpointResolverService>();
 
-            var mockLogger = new Mock<ILogger<EnvironmentService>>().Object;
+            var mockLogger = new Mock<ILogger<EnvironmentInstanceService>>().Object;
 
-            IEnvironmentService service = new EnvironmentService(optionsMock.Object, 
+            IEnvironmentInstanceService service = new EnvironmentInstanceService(optionsMock.Object, 
                 kubernetesClientMock.Object, 
                 routingServiceMock.Object,
                 mockLogger);
