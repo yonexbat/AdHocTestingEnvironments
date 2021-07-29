@@ -17,10 +17,14 @@ namespace AdHocTestingEnvironments.Controllers
     public class AdHocTestingEnvironmentsController : ControllerBase
     {
 
-        private readonly IEnvironmentInstanceService _environmentService;
+        private readonly IEnvironmentInstanceService _environmentInstanceService;
+        private readonly IEnvironmentService _environmentService;
 
-        public AdHocTestingEnvironmentsController(IEnvironmentInstanceService environmentService)
+        public AdHocTestingEnvironmentsController(
+            IEnvironmentInstanceService environmentInstanceService,
+            IEnvironmentService environmentService)
         {
+            _environmentInstanceService = environmentInstanceService;
             _environmentService = environmentService;
         }
 
@@ -28,7 +32,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpGet]
         public async Task<IEnumerable<EnvironmentInstance>> Get()
         {
-            return await _environmentService.ListEnvironmentInstances();
+            return await _environmentInstanceService.ListEnvironmentInstances();
         }
 
         [HttpGet(nameof(ListEnvironments))]
@@ -42,7 +46,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpPost]
         public async Task<StartResult> Post([FromBody] StartRequest dto)
         {
-            var instanceName = await _environmentService.StartEnvironmentInstance(dto);
+            var instanceName = await _environmentInstanceService.StartEnvironmentInstance(dto);
             return new StartResult() { Status = "Ok", InstanceName = instanceName, };
         }
 
@@ -51,7 +55,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpDelete("{id}")]
         public async Task<Result> Delete(string id)
         {
-            await _environmentService.StopEnvironmentInstance(id);
+            await _environmentInstanceService.StopEnvironmentInstance(id);
             return new Result() { Status = "Ok", };
         }
     }

@@ -14,7 +14,5 @@ namespace AdHocTestingEnvironments.Services.Interfaces
         Task<string> StopEnvironmentInstance(string instanceName);
 
         Task<IList<EnvironmentInstance>> ListEnvironmentInstances();
-
-        Task<IList<Application>> ListEnvironmetns();
     }
 }
