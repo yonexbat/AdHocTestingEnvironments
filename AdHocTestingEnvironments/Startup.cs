@@ -1,4 +1,4 @@
-using AdHocTestingEnvironments.Model.EnvironmentConfig;
+﻿using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Yarp.ReverseProxy.Forwarder;
+using Microsoft.EntityFrameworkCore;
+using AdHocTestingEnvironments.Data;
 
 namespace AdHocTestingEnvironments
 {
@@ -43,6 +45,9 @@ namespace AdHocTestingEnvironments
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
 
             services.AddHostedService<TimerBackgroundService>();
+
+            services.AddDbContext<AdHocTestingEnvironmentsContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("AdHocTestingEnvironmentsContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
