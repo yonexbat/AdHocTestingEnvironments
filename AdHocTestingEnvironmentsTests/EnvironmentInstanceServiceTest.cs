@@ -1,6 +1,5 @@
 ﻿using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Model.Environment;
-using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Model.Kubernetes;
 using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
@@ -58,21 +57,7 @@ namespace AdHocTestingEnvironmentsTests
 
 
         private IEnvironmentInstanceService CreateService()
-        {
-            EnvironmentConfigOptions options = new EnvironmentConfigOptions()
-            {
-                Environments = new List<AdHocEnvironmentConfig>()
-                {
-                    new AdHocEnvironmentConfig()
-                    {
-                        Name = "sampleapp",
-                        ContainerImage = "myimage",
-                        InitSql = "CREATE DATABASE TEST;",
-                    },
-                },
-            };
-            var optionsMock = new Mock<IOptions<EnvironmentConfigOptions>>();
-            optionsMock.Setup(ap => ap.Value).Returns(options);
+        {           
 
             var kubernetesClientMock = new Mock<IKubernetesClientService>();
             var instanceListTask = Task.FromResult<IList<EnvironmentInstance>>(new List<EnvironmentInstance>()

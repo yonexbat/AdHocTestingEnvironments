@@ -2,12 +2,9 @@
 using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Model.Entities;
 using AdHocTestingEnvironments.Model.Environment;
-using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

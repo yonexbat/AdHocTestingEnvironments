@@ -1,5 +1,4 @@
-﻿using AdHocTestingEnvironments.Model.EnvironmentConfig;
-using AdHocTestingEnvironments.Services.Implementations;
+﻿using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,8 +24,6 @@ namespace AdHocTestingEnvironments
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            services.Configure<EnvironmentConfigOptions>(Configuration.GetSection("EnvironmentConfig"));
 
             services.AddControllersWithViews();
             services.AddRazorPages();
