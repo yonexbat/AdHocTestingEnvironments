@@ -1,4 +1,6 @@
-﻿using AdHocTestingEnvironments.Model;
+﻿using AdHocTestingEnvironments.Data;
+using AdHocTestingEnvironments.Model;
+using AdHocTestingEnvironments.Model.Entities;
 using AdHocTestingEnvironments.Model.EnvironmentConfig;
 using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
@@ -19,35 +21,30 @@ namespace AdHocTestingEnvironmentsTests
        [Fact]
        public async Task ListEnvironmentsOk()
        {
-           IEnvironmentService service = CreateService();
-           var res = await service.ListEnvironmetns();
-           Assert.True(res.Any());
+            Guid guid = Guid.NewGuid();
+            using (AdHocTestingEnvironmentsContext dbContext = MockDatabase.CreateDbContext(guid)) {
+                ApplicationInfoEntity entity = new ApplicationInfoEntity()
+                {
+                    Name = "text",
+                    ContainerImage = "contimage",
+                    HasDatabase = false,
+                };
+                await dbContext.AddAsync(entity);
+                await dbContext.SaveChangesAsync();
+            }
+
+            using (AdHocTestingEnvironmentsContext dbContext = MockDatabase.CreateDbContext(guid))
+            {
+                var service = CreateService(dbContext);
+                var x = await service.ListEnvironmetns();
+                Assert.Equal(1, x.Count);
+            }
        }
 
-        private IEnvironmentService CreateService()
-        {
-            EnvironmentConfigOptions options = new EnvironmentConfigOptions()
-            {
-                Environments = new List<AdHocEnvironmentConfig>()
-                {
-                    new AdHocEnvironmentConfig()
-                    {
-                        Name = "sampleapp",
-                        ContainerImage = "myimage",
-                        InitSql = "CREATE DATABASE TEST;",
-                    },
-                },
-            };
-            var optionsMock = new Mock<IOptions<EnvironmentConfigOptions>>();
-            optionsMock.Setup(ap => ap.Value).Returns(options);
-
-
+        private IEnvironmentService CreateService(AdHocTestingEnvironmentsContext context)
+        {           
             var mockLogger = new Mock<ILogger<EnvironmentService>>().Object;
-
-
-            IEnvironmentService service = new EnvironmentService(optionsMock.Object,
-                mockLogger);
-
+            var service = new EnvironmentService(mockLogger, context);
             return service;
         }
     }

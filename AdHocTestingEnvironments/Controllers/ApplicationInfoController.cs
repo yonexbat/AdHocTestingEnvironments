@@ -25,14 +25,14 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ApplicationInfoEntity>>> GetApplicationInfoEntitiy()
         {
-            return await _context.ApplicationInfoEntitiy.ToListAsync();
+            return await _context.InfoEntities.ToListAsync();
         }
 
         // GET: api/ApplicationInfoEntitiys/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ApplicationInfoEntity>> GetApplicationInfoEntitiy(int id)
         {
-            var applicationInfoEntitiy = await _context.ApplicationInfoEntitiy.FindAsync(id);
+            var applicationInfoEntitiy = await _context.InfoEntities.FindAsync(id);
 
             if (applicationInfoEntitiy == null)
             {
@@ -78,7 +78,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpPost]
         public async Task<ActionResult<ApplicationInfoEntity>> PostApplicationInfoEntitiy(ApplicationInfoEntity applicationInfoEntitiy)
         {
-            _context.ApplicationInfoEntitiy.Add(applicationInfoEntitiy);
+            _context.InfoEntities.Add(applicationInfoEntitiy);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetApplicationInfoEntitiy", new { id = applicationInfoEntitiy.Id }, applicationInfoEntitiy);
@@ -88,13 +88,13 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteApplicationInfoEntitiy(int id)
         {
-            var applicationInfoEntitiy = await _context.ApplicationInfoEntitiy.FindAsync(id);
+            var applicationInfoEntitiy = await _context.InfoEntities.FindAsync(id);
             if (applicationInfoEntitiy == null)
             {
                 return NotFound();
             }
 
-            _context.ApplicationInfoEntitiy.Remove(applicationInfoEntitiy);
+            _context.InfoEntities.Remove(applicationInfoEntitiy);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace AdHocTestingEnvironments.Controllers
 
         private bool ApplicationInfoEntitiyExists(int id)
         {
-            return _context.ApplicationInfoEntitiy.Any(e => e.Id == id);
+            return _context.InfoEntities.Any(e => e.Id == id);
         }
     }
 }

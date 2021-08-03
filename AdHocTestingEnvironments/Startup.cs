@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Yarp.ReverseProxy.Forwarder;
 using Microsoft.EntityFrameworkCore;
 using AdHocTestingEnvironments.Data;
+using System;
 
 namespace AdHocTestingEnvironments
 {
@@ -45,9 +46,39 @@ namespace AdHocTestingEnvironments
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
 
             services.AddHostedService<TimerBackgroundService>();
+            AddDbContext(services);
+        }
+
+        private void AddDbContext(IServiceCollection services)
+        {
+            string databaseTech = Configuration.GetValue<string>("DatabaseTech");
+
+            switch (databaseTech)
+            {
+                case "InMemory":
+                    AddDbContextInMemory(services);
+                    break;
+                case "NpgSql":
+                    AddDbContextNpgSql(services);
+                    break;
+                default:
+                    throw new ArgumentException($"Configuration value DatabaseTech is invalid: {databaseTech}. Must be InMemory or NpgSql");
+            }
+        }
+
+        private void AddDbContextInMemory(IServiceCollection services)
+        {            
+            services.AddDbContext<AdHocTestingEnvironmentsContext>(options =>
+                    options.UseInMemoryDatabase($"AdHocTestingEnvironments"));
+        }
+
+        private void AddDbContextNpgSql(IServiceCollection services)
+        {
+            
+            string connectionString = Configuration.GetConnectionString("SampleWebAppContext");
 
             services.AddDbContext<AdHocTestingEnvironmentsContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("AdHocTestingEnvironmentsContext")));
+                   options.UseNpgsql(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,6 +127,10 @@ namespace AdHocTestingEnvironments
             {
                 gitClientService.CheckOut().Wait();
             }
+            if (Configuration.GetValue<bool>("InitDb"))
+            {
+                app.InitAdHocTestingEnvironmentDb();
+            }               
         }
     }
 }
