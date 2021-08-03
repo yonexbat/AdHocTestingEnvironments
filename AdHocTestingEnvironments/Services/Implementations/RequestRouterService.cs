@@ -2,6 +2,7 @@
 using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,12 @@ namespace AdHocTestingEnvironments.Services.Implementations
 {
     public class RequestRouterService : IRequestRouterService
     {
-        private readonly IEndpointResolverService _routingService;
         private readonly ILogger _logger;
+        private readonly IServiceProvider _serviceProvider;
 
-        public RequestRouterService(IEndpointResolverService routingService, ILogger<RequestRouterService> logger)
+        public RequestRouterService(IServiceProvider services, ILogger<RequestRouterService> logger)
         {
-            _routingService = routingService;
+            _serviceProvider = services;
             _logger = logger;
         }
 
@@ -29,7 +30,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
             var path = httpContext.Request.Path;
             _logger.LogInformation("Path: {0}", path);
 
-            string destinationUrl = GetDestination(path);
+            string destinationUrl = await GetDestination (path);
 
 
             var invoker = new CustomHttpMessageInvoker();
@@ -50,18 +51,27 @@ namespace AdHocTestingEnvironments.Services.Implementations
         }
 
 
-        private string GetDestination(string path)
+        private async Task<string> GetDestination(string path)
         {
             string pattern = @"^\/endpoint\/(?<dest>\w+)(\/|$).*";
             var match = Regex.Match(path, pattern);
             if (match.Success)
             {
                 string routeName = match.Groups["dest"].Value;
-                EndpointEntry item = _routingService.GetItem(routeName);
+                EndpointEntry item = await GetEndpointEntry(routeName);
                 return item.Destination;
             }
 
             throw new ArgumentException("No match found");
+        }
+
+        private async Task<EndpointEntry> GetEndpointEntry(string routename)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                IEndpointResolverService endpointResolverService = scope.ServiceProvider.GetRequiredService<IEndpointResolverService>();
+                return await endpointResolverService.GetItem(routename);
+            }
         }
     }
 }

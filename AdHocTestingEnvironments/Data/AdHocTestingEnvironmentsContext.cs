@@ -15,5 +15,7 @@ namespace AdHocTestingEnvironments.Data
         }
 
         public DbSet<ApplicationInfoEntity> InfoEntities { get; set; }
+
+        public DbSet<EndpointEntryEntity> Endpoints { get; set; }
     }
 }

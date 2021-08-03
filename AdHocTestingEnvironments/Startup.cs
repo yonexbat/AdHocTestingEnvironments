@@ -32,7 +32,7 @@ namespace AdHocTestingEnvironments
             services.AddHttpForwarder();
 
             services.AddSingleton<IRequestRouterService, RequestRouterService>();
-            services.AddSingleton<IEndpointResolverService, EndpointResolverService>();
+            services.AddScoped<IEndpointResolverService, EndpointResolverService>();
             services.AddSingleton<IKubernetesFactory, KubernetesFactory>();
             services.AddSingleton<ICurrentTimeService, CurrentTimeService>();
             services.AddSingleton<IKubernetesObjectBuilder, KubernetesObjectBuilder>();

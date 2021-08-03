@@ -22,32 +22,30 @@ namespace AdHocTestingEnvironments.Controllers
             _routingService = routingService;
         }
 
-        // GET: api/<ValuesController>
+
         [HttpGet]
-        public IEnumerable<EndpointEntry> Get()
+        public async Task<IEnumerable<EndpointEntry>> Get()
         {
-            return _routingService.GetCustomItem();
+            return await _routingService.GetCustomItem();
         }
 
-        // GET api/<ValuesController>/5
+
         [HttpGet("{id}")]
-        public EndpointEntry Get(string id)
+        public async Task<EndpointEntry> Get(string id)
         {
-            return _routingService.GetItem(id);
+            return await _routingService.GetItem(id);
         }
 
-        // POST api/<ValuesController>
         [HttpPost]
-        public EndpointEntry Post([FromBody] EndpointEntry value)
+        public async Task<EndpointEntry> Post([FromBody] EndpointEntry value)
         {
-            return _routingService.AddCustomItem(value);
+            return await _routingService.AddCustomItem(value);
         }
 
-        // PUT api/<ValuesController>/5
         [HttpPut("{id}")]
-        public EndpointEntry Put(string id, [FromBody] EndpointEntry routingEntry)
+        public async Task<EndpointEntry> Put(string id, [FromBody] EndpointEntry routingEntry)
         {
-            var item = _routingService.GetItem(id);
+            var item = await _routingService.GetItem(id);
             item.Destination = routingEntry.Destination;
             item.Name = routingEntry.Name;
             return item;
@@ -55,9 +53,9 @@ namespace AdHocTestingEnvironments.Controllers
 
         // DELETE api/<ValuesController>/5
         [HttpDelete("{id}")]
-        public void Delete(string id)
+        public async Task Delete(string id)
         {
-            _routingService.DeleteCustomItem(id);
+            await _routingService.DeleteCustomItem(id);
         }
     }
 }

@@ -61,12 +61,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 NumHoursToRun = startRequest.NumHoursToRun,
                 HasDatabase = appInfo.HasDatabase,
             });
-
-            _routingService.AddCustomItem(new EndpointEntry()
-            {
-                Name = instanceName,
-                Destination = $"http://{instanceName}",
-            });
+            
 
             return instanceName;
         }

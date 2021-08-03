@@ -2,6 +2,7 @@ using AdHocTestingEnvironments.Model;
 using AdHocTestingEnvironments.Services.Implementations;
 using AdHocTestingEnvironments.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -18,7 +19,6 @@ namespace AdHocTestingEnvironmentsTests
         {
             (IRequestRouterService requestRouter, HttpContext context, IHttpForwarder httpForwarder) = SetUp("/endpoint/myapp", "myapp", "http://www.ciri.com");
             await requestRouter.RouteRequest(context, httpForwarder);
-
         }
 
         [Fact]
@@ -47,11 +47,14 @@ namespace AdHocTestingEnvironmentsTests
         private (IRequestRouterService requestRouter, HttpContext context, IHttpForwarder httpForwarder) SetUp(string requestPath, string appId, string destination)
         {
             var routingServiceMock = new Mock<IEndpointResolverService>();
-            routingServiceMock.Setup(f => f.GetItem(It.IsAny<string>())).Returns(new EndpointEntry()
+
+            EndpointEntry epe = new EndpointEntry()
             {
                 Name = appId,
                 Destination = destination,
-            });
+            };
+
+            routingServiceMock.Setup(f => f.GetItem(It.IsAny<string>())).Returns(Task.FromResult(epe));
 
             var httpForwarderMock = new Mock<IHttpForwarder>();
 
@@ -61,7 +64,24 @@ namespace AdHocTestingEnvironmentsTests
             var mockLogger = new Mock<ILogger<RequestRouterService>>().Object;
 
 
-            RequestRouterService requestRouter = new RequestRouterService(routingServiceMock.Object, mockLogger);
+            var serviceProviderModk = new Mock<IServiceProvider>();
+            serviceProviderModk.Setup(x => x.GetService(typeof(IEndpointResolverService)))
+                .Returns(routingServiceMock.Object);
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProviderModk.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory
+                .Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
+            serviceProviderModk
+            .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
+            .Returns(serviceScopeFactory.Object);
+
+
+            RequestRouterService requestRouter = new RequestRouterService(serviceProviderModk.Object, mockLogger);
             return (requestRouter, contextMock, httpForwarderMock.Object);
         }
     }
