@@ -38,14 +38,11 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         public async Task DeleteCustomItem(string app)
         {
-            var x =  await _dbContext.Endpoints.Where(x => x.Name == app)
-                .SingleOrDefaultAsync();
+            var item =  await _dbContext.Endpoints.Where(x => x.Name == app)
+                .SingleAsync();
 
-            if (x != null)
-            {
-                _dbContext.Remove(x);
-                await _dbContext.SaveChangesAsync();
-            }
+            _dbContext.Remove(item);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<EndpointEntry> GetItem(string app)
@@ -71,13 +68,22 @@ namespace AdHocTestingEnvironments.Services.Implementations
             };
         }
 
-        public async Task<IList<EndpointEntry>> GetCustomItem()
+        public async Task<IList<EndpointEntry>> GetCustomItems()
         {
             return await _dbContext.Endpoints.Select(x => new EndpointEntry()
             {
                 Name = x.Name,
                 Destination = x.Destination,
             }).ToListAsync();
+        }
+
+        public async Task UpdateItem(EndpointEntry item)
+        {
+            var entity = await _dbContext.Endpoints.Where(x => x.Name == item.Name)
+                 .SingleAsync();
+
+            entity.Destination = entity.Destination;
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

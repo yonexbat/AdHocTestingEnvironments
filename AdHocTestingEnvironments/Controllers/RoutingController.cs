@@ -26,7 +26,7 @@ namespace AdHocTestingEnvironments.Controllers
         [HttpGet]
         public async Task<IEnumerable<EndpointEntry>> Get()
         {
-            return await _routingService.GetCustomItem();
+            return await _routingService.GetCustomItems();
         }
 
 
@@ -44,11 +44,9 @@ namespace AdHocTestingEnvironments.Controllers
 
         [HttpPut("{id}")]
         public async Task<EndpointEntry> Put(string id, [FromBody] EndpointEntry routingEntry)
-        {
-            var item = await _routingService.GetItem(id);
-            item.Destination = routingEntry.Destination;
-            item.Name = routingEntry.Name;
-            return item;
+        {          
+            await _routingService.UpdateItem(routingEntry);
+            return routingEntry;
         }
 
         // DELETE api/<ValuesController>/5

@@ -64,24 +64,24 @@ namespace AdHocTestingEnvironmentsTests
             var mockLogger = new Mock<ILogger<RequestRouterService>>().Object;
 
 
-            var serviceProviderModk = new Mock<IServiceProvider>();
-            serviceProviderModk.Setup(x => x.GetService(typeof(IEndpointResolverService)))
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock.Setup(x => x.GetService(typeof(IEndpointResolverService)))
                 .Returns(routingServiceMock.Object);
 
             var serviceScope = new Mock<IServiceScope>();
-            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProviderModk.Object);
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProviderMock.Object);
 
             var serviceScopeFactory = new Mock<IServiceScopeFactory>();
             serviceScopeFactory
                 .Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            serviceProviderModk
+            serviceProviderMock
             .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
             .Returns(serviceScopeFactory.Object);
 
 
-            RequestRouterService requestRouter = new RequestRouterService(serviceProviderModk.Object, mockLogger);
+            RequestRouterService requestRouter = new RequestRouterService(serviceProviderMock.Object, mockLogger);
             return (requestRouter, contextMock, httpForwarderMock.Object);
         }
     }
