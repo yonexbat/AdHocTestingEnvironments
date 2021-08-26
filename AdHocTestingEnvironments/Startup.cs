@@ -38,11 +38,19 @@ namespace AdHocTestingEnvironments
             services.AddSingleton<IKubernetesObjectBuilder, KubernetesObjectBuilder>();
             services.AddSingleton<IGitClientService, GitClientService>();
             services.AddScoped<IEnvironmentInstanceService, EnvironmentInstanceService>();
-            services.AddScoped<IEnvironmentService, EnvironmentService>();
-            services.AddScoped<IKubernetesClientService, KubernetesClientService>();
+            services.AddScoped<IEnvironmentService, EnvironmentService>();           
             services.AddScoped<IEnvironmentKillerService, EnvironmentKillerService>();
-
             services.AddHostedService<TimerBackgroundService>();
+
+            if (Configuration.GetValue<bool>("UseGitClient"))
+            {
+                services.AddSingleton<IKubernetesClientService, GitClientService>();
+            } 
+            else
+            {
+                services.AddScoped<IKubernetesClientService, KubernetesClientService>();
+            }
+
             AddDbContext(services);
         }
 

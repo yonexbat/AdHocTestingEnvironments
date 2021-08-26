@@ -62,6 +62,7 @@ namespace AdHocTestingEnvironmentsTests
                 {"GitUser", user},
                 {"GitPw", pw},
                 {"GitBranch",  branch},
+                {"ImagePostgres", "postgres" },
             };
 
             IConfiguration mockConfiguration = new ConfigurationBuilder()
@@ -70,7 +71,7 @@ namespace AdHocTestingEnvironmentsTests
 
             var mockLogger = new Mock<ILogger<GitClientService>>().Object;
 
-            IKubernetesObjectBuilder ob = new KubernetesObjectBuilder();
+            IKubernetesObjectBuilder ob = new KubernetesObjectBuilder(mockConfiguration);
 
             IGitClientService service = new GitClientService(mockConfiguration, ob, mockLogger);
             return service;

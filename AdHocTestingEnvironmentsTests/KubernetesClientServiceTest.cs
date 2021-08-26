@@ -68,6 +68,7 @@ namespace AdHocTestingEnvironmentsTests
                 {"KubernetesAccessToken", token},
                 {"KubernetesHost", host},
                 {"KubernetesNamespace", "default" },
+                {"ImagePostgres", "postgres" },
             };
 
             IConfiguration mockConfiguration = new ConfigurationBuilder()
@@ -77,7 +78,7 @@ namespace AdHocTestingEnvironmentsTests
             var mockLogger = new Mock<ILogger<KubernetesClientService>>().Object;
 
             IKubernetesFactory factory = new KubernetesFactory(mockConfiguration, new Mock<ILogger<KubernetesFactory>>().Object);
-            IKubernetesObjectBuilder objectBuilder = new KubernetesObjectBuilder();
+            IKubernetesObjectBuilder objectBuilder = new KubernetesObjectBuilder(mockConfiguration);
 
             IKubernetesClientService client = new KubernetesClientService(mockConfiguration, factory, objectBuilder, mockLogger);
             return client;

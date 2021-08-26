@@ -90,6 +90,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
             {                
                 IList<IKubernetesObject> objects = _kubernetesObjectBuilder.CreateObjectDefinitions(instanceInfo);
                 string localPath = GetPathToGitRepository();
+                IList<string> files = new List<string>();
                 using (Repository repo = new Repository(localPath))
                 {
                     foreach (Object kubernetesObject in objects)
@@ -103,13 +104,15 @@ namespace AdHocTestingEnvironments.Services.Implementations
                             _ => throw new ArgumentException($"Type {kubernetesObject.GetType().Name} not suported."),
                         };
 
+                        string fileName = Path.GetFileName(path);
+                        files.Add(fileName);                                                
 
                         Commands.Stage(repo, path);
 
                         _logger.LogInformation("Created Kubernetes Object");
                     }
 
-                    await AddToKustomizeFile(repo, instanceInfo);
+                    await AddToKustomizeFile(files, repo, instanceInfo);
 
                     CommitChanges(repo);
                     PushChanges(repo);
@@ -154,12 +157,12 @@ namespace AdHocTestingEnvironments.Services.Implementations
             }
         }
 
-        private async Task AddToKustomizeFile(Repository repo, CreateEnvironmentInstanceData instanceInfo)
+        private async Task AddToKustomizeFile(IList<string> files, Repository repo, CreateEnvironmentInstanceData instanceInfo)
         {           
             Kustomize kustomize = GetKustomize();
-            kustomize.Resources.Add($"{instanceInfo.Name}-configmap.yaml");
-            kustomize.Resources.Add($"{instanceInfo.Name}-deployment.yaml");
-            kustomize.Resources.Add($"{instanceInfo.Name}-service.yaml");
+
+            kustomize.Resources = files.Union(kustomize.Resources).ToList();
+
 
             var serializer = new SerializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
