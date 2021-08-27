@@ -51,6 +51,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 // delete directory first.
                 ForceDeleteDirectory(localPath);
                 Repository.Clone(_gitUrl, localPath);
+                _logger.LogInformation("Successfully checked out repo");
             } 
             catch(Exception ex)
             {
@@ -66,7 +67,8 @@ namespace AdHocTestingEnvironments.Services.Implementations
         {
             await Semaphore.WaitAsync();
             try
-            {                
+            {
+                _logger.LogInformation("Getting environments");
                 Kustomize kustomize = GetKustomize();
                 IList<EnvironmentInstance> services = kustomize
                     .Resources
@@ -214,6 +216,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         private void PushChanges(Repository repo)
         {
+            _logger.LogInformation("Pushing changes. Branch name on remote: {0}", _branch);
             var remote = repo.Network.Remotes["origin"];
             var options = new PushOptions()
             {
