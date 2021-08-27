@@ -23,8 +23,8 @@ namespace AdHocTestingEnvironments.Services.Implementations
         private readonly string _gitUrl;
         private readonly ILogger _logger;
         private readonly IKubernetesObjectBuilder _kubernetesObjectBuilder;
-        private readonly string _userName;
-        private readonly string _password;
+        private static string _userName;
+        private static string _password;
         private readonly string _branch;
         private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
 
@@ -313,6 +313,12 @@ namespace AdHocTestingEnvironments.Services.Implementations
             {
                 _logger.LogInformation("Directory does not exist");
             }
+        }
+
+        public void ChangeUserNameAndPassword(string username, string password)
+        {
+            _userName = username;
+            _password = password;
         }
     }
 }
