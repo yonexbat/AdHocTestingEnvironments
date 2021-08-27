@@ -8,5 +8,8 @@ namespace AdHocTestingEnvironments.Services.Interfaces
     public interface IGitClientService : IKubernetesClientService
     {
         Task CheckOut();
+
+        // Hack, dirty and what not.
+        void ChangeUserNameAndPassword(string usernam, string password);
     }
 }
