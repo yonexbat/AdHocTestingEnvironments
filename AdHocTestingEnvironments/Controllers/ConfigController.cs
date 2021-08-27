@@ -26,6 +26,7 @@ namespace AdHocTestingEnvironments.Controllers
         /// <summary>
         /// Intentional abuse of get.
         /// Hack.
+        /// https://localhost:5001/api/Config?a=abc&b=def
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
