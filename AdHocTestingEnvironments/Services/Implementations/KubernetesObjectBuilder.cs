@@ -2,6 +2,7 @@
 using AdHocTestingEnvironments.Services.Interfaces;
 using k8s;
 using k8s.Models;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
 
@@ -12,10 +13,15 @@ namespace AdHocTestingEnvironments.Services.Implementations
         private const string CREATOR_VALUE = "adhoctestingenvironments";
         private const string CREATOR_KEY = "creator";
         private const string UPTIME = "uptime";
+        private string _imagePostgres;
+        private bool _addSecurityContext = false;
+        private int _serviceTargetPort;
 
-        public KubernetesObjectBuilder()
+        public KubernetesObjectBuilder(IConfiguration configuration)
         {
-
+            this._imagePostgres = configuration.GetValue<string>("ImagePostgres");
+            this._addSecurityContext = configuration.GetValue<bool>("AddSecurityContext");
+            this._serviceTargetPort = configuration.GetValue<int>("ServiceTargetPort");
         }
 
         public IList<IKubernetesObject> CreateObjectDefinitions(CreateEnvironmentInstanceData instanceInfo)
@@ -55,7 +61,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
             V1ServicePort port = new V1ServicePort();
             port.Protocol = "TCP";
             port.Port = 80;
-            port.TargetPort = 80;
+            port.TargetPort = this._serviceTargetPort;
             service.Spec.Type = "ClusterIP";
             service.Spec.Ports.Add(port);
             return service;
@@ -66,7 +72,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
             // Deployment
             var deployment = CreateDeploymentHeader(instanceInfo.Name);
 
-            var appContainer = CreateAppContainer(instanceInfo.Name, instanceInfo.Image);
+            var appContainer = CreateAppContainer(instanceInfo);
             deployment.Spec.Template.Spec.Containers.Add(appContainer);
 
             if (instanceInfo.HasDatabase)
@@ -113,27 +119,38 @@ namespace AdHocTestingEnvironments.Services.Implementations
             return volume;
         }
 
-        private V1Container CreateAppContainer(string appName, string image)
+        private V1Container CreateAppContainer(CreateEnvironmentInstanceData instanceInfo)
         {
             var appContainer = new V1Container();
-            appContainer.Name = appName;
-            appContainer.Image = image;
+            appContainer.Name = instanceInfo.Name;
+            appContainer.Image = instanceInfo.Image;
             appContainer.Env = new List<V1EnvVar>();
             appContainer.Env.Add(new V1EnvVar()
             {
                 Name = "PathBase",
-                Value = $"endpoint/{appName}",
+                Value = $"endpoint/{instanceInfo.Name}",
             });
-            appContainer.Env.Add(new V1EnvVar()
+            if (instanceInfo.HasDatabase)
             {
-                Name = "ConnectionStrings__SampleWebAppContext",
-                Value = $"Server=localhost;Port=5432;Database=test;User Id=postgres;Password=verysecret",
-            });
-            appContainer.Env.Add(new V1EnvVar()
+                appContainer.Env.Add(new V1EnvVar()
+                {
+                    Name = "ConnectionStrings__SampleWebAppContext",
+                    Value = $"Server=localhost;Port=5432;Database=test;User Id=postgres;Password=verysecret",
+                });
+                appContainer.Env.Add(new V1EnvVar()
+                {
+                    Name = "DatabaseTech",
+                    Value = "NpgSql",
+                });
+            }
+
+            if (_addSecurityContext)
             {
-                Name = "DatabaseTech",
-                Value = $"NpgSql",
-            });
+                appContainer.SecurityContext = new V1SecurityContext();
+                appContainer.SecurityContext.RunAsUser = 1000;
+                appContainer.SecurityContext.RunAsGroup = 1000;
+            }
+
             return appContainer;
         }
 
@@ -141,7 +158,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
         {
             var psqlContainer = new V1Container();
             psqlContainer.Name = $"{appName}psql";
-            psqlContainer.Image = "postgres";
+            psqlContainer.Image = this._imagePostgres;
             psqlContainer.Env = new List<V1EnvVar>();
             psqlContainer.Env.Add(new V1EnvVar()
             {

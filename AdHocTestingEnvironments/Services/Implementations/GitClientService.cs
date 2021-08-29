@@ -23,8 +23,8 @@ namespace AdHocTestingEnvironments.Services.Implementations
         private readonly string _gitUrl;
         private readonly ILogger _logger;
         private readonly IKubernetesObjectBuilder _kubernetesObjectBuilder;
-        private readonly string _userName;
-        private readonly string _password;
+        private static string _userName;
+        private static string _password;
         private readonly string _branch;
         private static readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
 
@@ -51,6 +51,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
                 // delete directory first.
                 ForceDeleteDirectory(localPath);
                 Repository.Clone(_gitUrl, localPath);
+                _logger.LogInformation("Successfully checked out repo");
             } 
             catch(Exception ex)
             {
@@ -66,7 +67,8 @@ namespace AdHocTestingEnvironments.Services.Implementations
         {
             await Semaphore.WaitAsync();
             try
-            {                
+            {
+                _logger.LogInformation("Getting environments");
                 Kustomize kustomize = GetKustomize();
                 IList<EnvironmentInstance> services = kustomize
                     .Resources
@@ -90,6 +92,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
             {                
                 IList<IKubernetesObject> objects = _kubernetesObjectBuilder.CreateObjectDefinitions(instanceInfo);
                 string localPath = GetPathToGitRepository();
+                IList<string> files = new List<string>();
                 using (Repository repo = new Repository(localPath))
                 {
                     foreach (Object kubernetesObject in objects)
@@ -103,13 +106,15 @@ namespace AdHocTestingEnvironments.Services.Implementations
                             _ => throw new ArgumentException($"Type {kubernetesObject.GetType().Name} not suported."),
                         };
 
+                        string fileName = Path.GetFileName(path);
+                        files.Add(fileName);                                                
 
                         Commands.Stage(repo, path);
 
                         _logger.LogInformation("Created Kubernetes Object");
                     }
 
-                    await AddToKustomizeFile(repo, instanceInfo);
+                    await AddToKustomizeFile(files, repo, instanceInfo);
 
                     CommitChanges(repo);
                     PushChanges(repo);
@@ -154,12 +159,12 @@ namespace AdHocTestingEnvironments.Services.Implementations
             }
         }
 
-        private async Task AddToKustomizeFile(Repository repo, CreateEnvironmentInstanceData instanceInfo)
+        private async Task AddToKustomizeFile(IList<string> files, Repository repo, CreateEnvironmentInstanceData instanceInfo)
         {           
             Kustomize kustomize = GetKustomize();
-            kustomize.Resources.Add($"{instanceInfo.Name}-configmap.yaml");
-            kustomize.Resources.Add($"{instanceInfo.Name}-deployment.yaml");
-            kustomize.Resources.Add($"{instanceInfo.Name}-service.yaml");
+
+            kustomize.Resources = files.Union(kustomize.Resources).ToList();
+
 
             var serializer = new SerializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -211,6 +216,7 @@ namespace AdHocTestingEnvironments.Services.Implementations
 
         private void PushChanges(Repository repo)
         {
+            _logger.LogInformation("Pushing changes. Branch name on remote: {0}", _branch);
             var remote = repo.Network.Remotes["origin"];
             var options = new PushOptions()
             {
@@ -307,6 +313,12 @@ namespace AdHocTestingEnvironments.Services.Implementations
             {
                 _logger.LogInformation("Directory does not exist");
             }
+        }
+
+        public void ChangeUserNameAndPassword(string username, string password)
+        {
+            _userName = username;
+            _password = password;
         }
     }
 }
